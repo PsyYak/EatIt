@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.iFood.Activities.Add_Recipe.addRecipe_New;
 import com.example.iFood.Activities.oldActivities.AddRecipe;
 import com.example.iFood.Adapters.MyRecipesAdapter;
 import com.example.iFood.Classes.Recipes;
@@ -75,7 +76,7 @@ public class MyRecipes extends AppCompatActivity {
             bundle.putString("username",userName);
             bundle.putString("userRole",userRole);
             bottomNavFrag.setArguments(bundle);
-            bottomNavFrag.show(getSupportFragmentManager(),"TAG");
+            bottomNavFrag.show(getSupportFragmentManager(),"bottomNav");
 
         });
         ///////////////////////////////
@@ -94,7 +95,7 @@ public class MyRecipes extends AppCompatActivity {
             bundle.putString("username",userName);
             bundle.putString("userRole",userRole);
             addIcon.setArguments(bundle);
-            addIcon.show(getSupportFragmentManager(),"TAG");
+            addIcon.show(getSupportFragmentManager(),"addIconNav");
         });
 
         totalCount = findViewById(R.id.tvMyRecipesCount);
@@ -135,7 +136,7 @@ public class MyRecipes extends AppCompatActivity {
                 }
                 if(myRecipes.size()<1) {
                     myRecipesSize();
-                    totalCount.setText(0);
+                    totalCount.setText(String.valueOf(0));
                 }else{
                     totalCount.setText(String.valueOf(myRecipes.size()));
                     String notApproved = "("+i+")";
@@ -155,7 +156,28 @@ public class MyRecipes extends AppCompatActivity {
         });
 
     }
+    @Override
+    public void onBackPressed() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MyRecipes.this);
 
+        builder.setMessage("Are you sure you want to Exit?");
+        builder.setTitle("Exit Application");
+        builder.setPositiveButton(R.string.yes, (dialog, which) -> finishAffinity());
+        builder.setNegativeButton(R.string.no, (dialog, which) -> dialog.cancel());
+
+        final AlertDialog alertExit = builder.create();
+        alertExit.setOnShowListener(dialog -> {
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            params.setMargins(20,0,0,0);
+            Button button = alertExit.getButton(AlertDialog.BUTTON_POSITIVE);
+            button.setLayoutParams(params);
+        });
+        alertExit.show();
+
+    }
     /**
      * This function is responsible for refreshing our Listview with our customer Adapter.
      * spanCount controls on the amount of items on each row.
@@ -210,7 +232,7 @@ public class MyRecipes extends AppCompatActivity {
             builder.setTitle(R.string.myRecipes);
             builder.setNegativeButton(R.string.no, (dialog, which) -> dialog.cancel());
             builder.setPositiveButton(R.string.yes, (dialog, which) -> {
-                Intent moveToAdd = new Intent(MyRecipes.this, AddRecipe.class);
+                Intent moveToAdd = new Intent(MyRecipes.this, addRecipe_New.class);
                 moveToAdd.putExtra("username", userName);
                 moveToAdd.putExtra("userRole",userRole);
                 startActivity(moveToAdd);

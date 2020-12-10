@@ -49,12 +49,12 @@ import retrofit2.Response;
  *
  */
 public class SendMessage extends AppCompatActivity {
-    ConnectionBCR bcr = new ConnectionBCR();
+    private ConnectionBCR bcr = new ConnectionBCR();
     String formattedDate,userName, uniqueID,toUser,url,activity;
     TextView etFrom,etTo;
-    EditText etTitle,etContent;
+    private EditText etTitle,etContent;
     Button btnSend,btnClose;
-    ProgressDialog progressDialog;
+    private ProgressDialog progressDialog;
     //
     // Connect to DB
     DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Messages");
@@ -87,7 +87,7 @@ public class SendMessage extends AppCompatActivity {
 
         // Progress bar
         progressDialog = new ProgressDialog(SendMessage.this);
-
+        progressDialog.setCanceledOnTouchOutside(false);
         // Call function to get the user image.
         getUserURL();
         getUserID();
@@ -204,6 +204,7 @@ public class SendMessage extends AppCompatActivity {
         Message msg;
         uniqueID = String.valueOf(ref.push().getKey());
         msg = new Message(title,userImageUrl,message,toUser,formattedDate,userName, uniqueID,"false");
+        Log.w("TAG","Message: "+msg.toString());
         ref.child(toUser).child(uniqueID).setValue(msg);
         apiService = Client.getClient("https://fcm.googleapis.com/").create(APIService.class);
 

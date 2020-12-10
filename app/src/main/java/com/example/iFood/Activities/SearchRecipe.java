@@ -1,6 +1,7 @@
 package com.example.iFood.Activities;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -102,7 +103,7 @@ public class SearchRecipe extends AppCompatActivity {
             bundle.putString("username",getIntent().getStringExtra("username"));
             bundle.putString("userRole",getIntent().getStringExtra("userRole"));
             bottomNavFrag.setArguments(bundle);
-            bottomNavFrag.show(getSupportFragmentManager(),"TAG");
+            bottomNavFrag.show(getSupportFragmentManager(),"bottomNav");
 
         });
         ///////////////////////////////
@@ -122,7 +123,7 @@ public class SearchRecipe extends AppCompatActivity {
             bundle.putString("username",getIntent().getStringExtra("username"));
             bundle.putString("userRole",getIntent().getStringExtra("userRole"));
             addIcon.setArguments(bundle);
-            addIcon.show(getSupportFragmentManager(),"TAG");
+            addIcon.show(getSupportFragmentManager(),"addIconNav");
         });
 
 
@@ -131,6 +132,28 @@ public class SearchRecipe extends AppCompatActivity {
 
     } // onCreate ends
 
+    @Override
+    public void onBackPressed() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(SearchRecipe.this);
+
+        builder.setMessage("Are you sure you want to Exit?");
+        builder.setTitle("Exit Application");
+        builder.setPositiveButton(R.string.yes, (dialog, which) -> finishAffinity());
+        builder.setNegativeButton(R.string.no, (dialog, which) -> dialog.cancel());
+
+        final AlertDialog alertExit = builder.create();
+        alertExit.setOnShowListener(dialog -> {
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            params.setMargins(20,0,0,0);
+            Button button = alertExit.getButton(AlertDialog.BUTTON_POSITIVE);
+            button.setLayoutParams(params);
+        });
+        alertExit.show();
+
+    }
     /**
      * This function divides the user input into multiple variables to be used in search
      * and translate the input to English to bring up results from the Database.
@@ -175,6 +198,7 @@ public class SearchRecipe extends AppCompatActivity {
     public void searchRecipe(){
         ProgressDialog progressDialog = new ProgressDialog(SearchRecipe.this);
         progressDialog.setMessage("Searching for your recipe..");
+        progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.show();
         Query dbQuery = ref.orderByKey();
         dbQuery.addValueEventListener(new ValueEventListener() {
@@ -188,7 +212,7 @@ public class SearchRecipe extends AppCompatActivity {
                           Recipes results = searchedResults.getValue(Recipes.class);
                         for (String s : userInput) {
                             assert results != null;
-                            Log.w("TAG","Rec name: "+results.recipeName+", isApproved:"+results.isApproved());
+                            //Log.w("TAG","Rec name: "+results.recipeName+", isApproved:"+results.isApproved());
                             allMatch= results.getRecipeIngredients().toLowerCase().contains(s.toLowerCase()) && results.isApproved();
                         }
                         if(allMatch){
@@ -221,6 +245,7 @@ public class SearchRecipe extends AppCompatActivity {
      */
     private void refresh_lv(){
 
+        //Log.w("tag","activity:"+activity);
         myAdapter = new RecipeAdapter(this,searchResultArray,activity);
 
         myrecyclerView.setLayoutManager(new GridLayoutManager(this,3));

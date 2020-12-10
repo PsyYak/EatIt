@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -73,9 +74,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyHolder
         //////
         myHolder.msgTitle.setText(mData.get(i).getTitle());
         myHolder.userName.setText(mData.get(i).getFromUser());
-        new Thread(() ->
-                Picasso.get().load(mData.get(i).getUserImageUrl()).into(myHolder.userImg))
-                .start();
+        Picasso.get().load(mData.get(i).getUserImageUrl()).into(myHolder.userImg);
 
 
 
@@ -146,10 +145,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyHolder
      * after the user viewed the message itself.
      */
     public void changeMsgState(){
+        Log.w("TAG","Before messageRef");
         messagesRef.orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                messagesRef.child(userName).child(msgID).child("read").setValue("true");
+                Log.w("in func","Changed");
+                messagesRef.child(userName).child(msgID).child("isRead").setValue("true");
+                Log.w("TAG2","isRead:"+messagesRef.child(userName).child(msgID).child("read").toString());
             }
 
             @Override

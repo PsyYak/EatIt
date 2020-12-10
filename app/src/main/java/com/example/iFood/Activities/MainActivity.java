@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
             bundle.putString("username",userName);
             bundle.putString("userRole",userRole);
             bottomNavFrag.setArguments(bundle);
-            bottomNavFrag.show(getSupportFragmentManager(),"TAG");
+            bottomNavFrag.show(getSupportFragmentManager(),"bottomNav");
 
         });
         ///////////////////////////////
@@ -100,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
             }
             return false;
         });
+        
         ///////////////////////////////
         addIcon.setOnClickListener(v -> {
             AddDrawFragment addIcon = new AddDrawFragment();
@@ -107,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
             bundle.putString("username",userName);
             bundle.putString("userRole",userRole);
             addIcon.setArguments(bundle);
-            addIcon.show(getSupportFragmentManager(),"TAG");
+            addIcon.show(getSupportFragmentManager(),"addIconNav");
         });
 
 

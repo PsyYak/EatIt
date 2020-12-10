@@ -2,6 +2,7 @@ package com.example.iFood.Activities.Inbox;
 
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
@@ -110,17 +111,24 @@ public class Inbox_new extends AppCompatActivity {
             addIcon.show(getSupportFragmentManager(),"TAG");
         });
         delIcon.setOnClickListener(v -> {
+            ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.setMessage("Deleting messages..");
+            progressDialog.show();
             for(int i =0 ; msgList.size()>i;i++) {
                 messagesRef.child(userName).child(msgList.get(i)).removeValue();
-
+                refresh_lvRead();
+                refresh_lvNotRead();
             }
-
+            delIcon.hide();
+            msgList.clear();
+            progressDialog.dismiss();
 
         });
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                //Log.w("TAG","Tab selected:"+tab.getText());
+                Log.w("TAG","Tab selected:"+tab.getText());
                 msgList.clear();
                 checkDelList();
                 refresh_lvRead();
@@ -141,8 +149,6 @@ public class Inbox_new extends AppCompatActivity {
         });
 
         checkDelList();
-        refresh_lvRead();
-        refresh_lvNotRead();
 
     } // onCreate ends
 

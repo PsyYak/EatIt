@@ -1,6 +1,7 @@
 package com.example.iFood.Activities;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Intent;
@@ -15,6 +16,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,11 +61,12 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
     Random rnd = new Random();
     int color;
     // Button
-    Button btnSearch,btnOk,btnDismiss;
+    ImageButton btnSearch;
+    Button btnOk,btnDismiss;
 
     // Date Variables
     Date to,from;
-    long userTime,recipeTime;
+    long userTime,recipeTime,rejectRecipeTime;
     int mYear, mMonth, mDay;
 
     // PieChart
@@ -87,122 +91,148 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
 
         setVariables();
         setCurrentDateonOpen();
-        getDB_Data();
-
 
         // onClick Listeners
         btnSearch.setOnClickListener(v -> {
-            if(to==null || from==null){
-
-                @SuppressLint("SimpleDateFormat") DateFormat formatter = new SimpleDateFormat(getString(R.string.date_format));
-                try {
-                    if(to==null) to = formatter.parse(toDate.getText().toString());
-                    if(from==null)from = formatter.parse(toDate.getText().toString());
-                    else{
-                        from = formatter.parse(toDate.getText().toString());
-                        to = formatter.parse(toDate.getText().toString());
-                    }
-
-                  //  Log.d(TAG, "onClick: toDate:"+to.getTime());
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-
-            }
-            else if (to.getTime() < from.getTime()) {
-                Toast.makeText(AdminActivity.this,"Search credentials are not valid",Toast.LENGTH_SHORT).show();
-            }
-            else {
-                usersPieData.clear();
-                recipesPieData.clear();
-                refUsers.orderByKey();
-                refUsers.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                        for(DataSnapshot ds : snapshot.getChildren()){
-                          Users u = ds.getValue(Users.class);
-                          assert u != null;
-                          userTime = (Long)u.timestamp;
-                         //   @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new SimpleDateFormat(getString(R.string.date_format));
-                         //   String c = simpleDateFormat.format(userTime);
-                            //Log.d("TAG","user date: "+c);
-                          Range<Long> timeRange = Range.create(from.getTime(),
-                                  to.getTime());
-                          if(timeRange.contains(userTime)){
-
-                           //   c = simpleDateFormat.format(userTime);
-                              //Log.d("TAG","Found user match to date: "+c);
-                              userCount++;
-                              Log.d("TAG","User count is:"+userCount);
-                          }
-                      }
-                        if(userCount>0) {
-                            if (userCount != userTotalCount){
-                                usersPieData.add(new SliceValue(userCount, Color.GREEN).setLabel("Users :" + userCount));
-                            }
-                            usersPieData.add(new SliceValue(userTotalCount, Color.parseColor("#FF5252")).setLabel("Total Users :"+userTotalCount));
-                            userCount=0;
-                        }else{
-                            usersPieData.add(new SliceValue(userTotalCount, Color.parseColor("#FF5252")).setLabel("Total Users :"+userTotalCount));
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-                refRecipes.orderByKey();
-                refRecipes.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                        for(DataSnapshot ds : snapshot.getChildren()) {
-                            for (DataSnapshot dsResult : ds.getChildren()) {
-                                Recipes rec = dsResult.getValue(Recipes.class);
-                                assert rec != null;
-
-                                recipeTime = (Long) rec.timestamp;
-                              //  @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new SimpleDateFormat(getString(R.string.date_format));
-                                //String c = simpleDateFormat.format(recipeTime);
-                               // Log.d("TAG"," recipe date: "+c);
-                                Range<Long> recipeTimeRange = Range.create(from.getTime(),
-                                        to.getTime());
-                                if (recipeTimeRange.contains(recipeTime)) {
-
-                                 //  c = simpleDateFormat.format(recipeTime);
-                                  //  Log.d("TAG","Found recipe match to date: "+c);
-                                    recipeCount++;
-                                   Log.d("TAG","Recipe count is:"+recipeCount);
-                                }
-                            }
-
-                        }
-                        if(recipeCount>0) {
-                            if (recipeCount != recipeTotalCount) {
-                                recipesPieData.add(new SliceValue(recipeCount, Color.RED).setLabel("Recipes :" + recipeCount));
-                            }
-                            recipesPieData.add(new SliceValue(recipeTotalCount, Color.parseColor("#3F51B5")).setLabel("Total Recipes :"+recipeTotalCount));
-                            recipeCount = 0;
-                        }else{
-                            recipesPieData.add(new SliceValue(recipeTotalCount, Color.parseColor("#3F51B5")).setLabel("Total Recipes :"+recipeTotalCount));
-                        }
-                        setChart();
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-            }
-
+            getUsersRecipesData();
+            getRejectData();
         });
         // more onClick listeners with override their onClick method
         fromDate.setOnClickListener(this);
         toDate.setOnClickListener(this);
     } // onCreate ends
+
+    private void getUsersRecipesData() {
+
+        if(to==null || from==null){
+
+            @SuppressLint("SimpleDateFormat") DateFormat formatter = new SimpleDateFormat(getString(R.string.date_format));
+            try {
+                if(to==null) to = formatter.parse(toDate.getText().toString());
+                if(from==null)from = formatter.parse(toDate.getText().toString());
+                else{
+                    from = formatter.parse(toDate.getText().toString());
+                    to = formatter.parse(toDate.getText().toString());
+                }
+
+                //  Log.d(TAG, "onClick: toDate:"+to.getTime());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+        }
+        else if (to.getTime() < from.getTime()) {
+            Toast.makeText(AdminActivity.this,"Search credentials are not valid",Toast.LENGTH_SHORT).show();
+        }
+        else {
+
+            usersPieData.clear();
+            recipesPieData.clear();
+            refUsers.orderByKey();
+            refUsers.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                    for(DataSnapshot ds : snapshot.getChildren()){
+                        Users u = ds.getValue(Users.class);
+                        assert u != null;
+                        userTime = (Long)u.timestamp;
+                        //   @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new SimpleDateFormat(getString(R.string.date_format));
+                        //   String c = simpleDateFormat.format(userTime);
+                        //Log.d("TAG","user date: "+c);
+                        Range<Long> timeRange = Range.create(from.getTime(),
+                                to.getTime());
+                        if(timeRange.contains(userTime)){
+
+                            //   c = simpleDateFormat.format(userTime);
+                            //Log.d("TAG","Found user match to date: "+c);
+                            userCount++;
+                            Log.d("TAG","User count is:"+userCount);
+                        }
+                    }
+                    if(userCount>0) {
+                        if (userCount != userTotalCount){
+                            usersPieData.add(new SliceValue(userCount, Color.GREEN).setLabel("Users :" + userCount));
+                        }
+                        usersPieData.add(new SliceValue(userTotalCount, Color.parseColor("#FF5252")).setLabel("Total Users :"+userTotalCount));
+                        userCount=0;
+                    }else{
+                        usersPieData.add(new SliceValue(userTotalCount, Color.parseColor("#FF5252")).setLabel("Total Users :"+userTotalCount));
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+            refRecipes.orderByKey();
+            refRecipes.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                    for(DataSnapshot ds : snapshot.getChildren()) {
+                        for (DataSnapshot dsResult : ds.getChildren()) {
+                            Recipes rec = dsResult.getValue(Recipes.class);
+                            assert rec != null;
+
+                            recipeTime = (Long) rec.timestamp;
+                            //  @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new SimpleDateFormat(getString(R.string.date_format));
+                            //String c = simpleDateFormat.format(recipeTime);
+                            // Log.d("TAG"," recipe date: "+c);
+                            Range<Long> recipeTimeRange = Range.create(from.getTime(),
+                                    to.getTime());
+                            if (recipeTimeRange.contains(recipeTime)) {
+
+                                //  c = simpleDateFormat.format(recipeTime);
+                                //  Log.d("TAG","Found recipe match to date: "+c);
+                                recipeCount++;
+                                //Log.d("TAG","Recipe count is:"+recipeCount);
+                            }
+                        }
+
+                    }
+                    if(recipeCount>0) {
+                        if (recipeCount != recipeTotalCount) {
+                            recipesPieData.add(new SliceValue(recipeCount, Color.RED).setLabel("Recipes :" + recipeCount));
+                        }
+                        recipesPieData.add(new SliceValue(recipeTotalCount, Color.parseColor("#3F51B5")).setLabel("Total Recipes :"+recipeTotalCount));
+                        recipeCount = 0;
+                    }else{
+                        recipesPieData.add(new SliceValue(recipeTotalCount, Color.parseColor("#3F51B5")).setLabel("Total Recipes :"+recipeTotalCount));
+                    }
+                    setChart();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
+    }
+    @Override
+    public void onBackPressed() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(AdminActivity.this);
+
+        builder.setMessage("Are you sure you want to Exit?");
+        builder.setTitle("Exit Application");
+        builder.setPositiveButton(R.string.yes, (dialog, which) -> finishAffinity());
+        builder.setNegativeButton(R.string.no, (dialog, which) -> dialog.cancel());
+
+        final AlertDialog alertExit = builder.create();
+        alertExit.setOnShowListener(dialog -> {
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            params.setMargins(20,0,0,0);
+            Button button = alertExit.getButton(AlertDialog.BUTTON_POSITIVE);
+            button.setLayoutParams(params);
+        });
+        alertExit.show();
+
+    }
 
     private void setChart(){
         recipesPieChart = new PieChartData(recipesPieData);
@@ -235,7 +265,9 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
      * Get general data from the DB.
      */
 
-    private void getDB_Data(){
+    private void getRejectData(){
+        rejectReasonPieData.clear();
+        topModPieData.clear();
         Query dbQuery = refRecipes.orderByKey();
         dbQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -267,36 +299,39 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
 
             }
         });
-        rejectReasonPieData.clear();
-        topModPieData.clear();
+
        Query dbDelList = deleted_list.orderByKey();
        dbDelList.addListenerForSingleValueEvent(new ValueEventListener() {
              @Override
            public void onDataChange(@NonNull DataSnapshot snapshot) {
                for(DataSnapshot dst : snapshot.getChildren()){
-                   Log.w("TAG","Value is:" +dst.getKey());
+                  //Log.w("TAG","Value is:" +dst.getKey());
                    int count =  Integer.parseInt(String.valueOf(dst.getChildrenCount()));
-                   Log.w("TAG","Count is:" +count);
+                 //  Log.w("TAG","Count is:" +count);
                    color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
                    // recipesPieData.add(new SliceValue(recipeCount, Color.RED).setLabel("Recipes :" + recipeCount));
                    topModPieData.add(new SliceValue(count,color ).setLabel(""+dst.getKey()+": "+count));
                    for(DataSnapshot dst2 : dst.getChildren()){
                        RejectedRecipe rejectedRecipe =  dst2.getValue(RejectedRecipe.class);
                        assert rejectedRecipe != null;
-
-                       Log.w("TAG","Reasons:"+rejectedRecipe.rejectReasons);
-                           if(rejectedRecipe.rejectReasons.contains("Spam")) spam++;
-                           if(rejectedRecipe.rejectReasons.contains("Missing info")) missingInfo++;
-                           if(rejectedRecipe.rejectReasons.contains("Bad Picture")) badPicture++;
-                           if(rejectedRecipe.rejectReasons.contains("Bad Desc")) badDesc++;
-                           if(rejectedRecipe.rejectReasons.contains("Bad Title")) badTitle++;
-                           if(rejectedRecipe.rejectReasons.contains("Missing Ingredients")) missingIngredients++;
-                           if(!rejectedRecipe.rejectReasons.contains("Spam") &&
-                              !rejectedRecipe.rejectReasons.contains("Missing info") &&
-                              !rejectedRecipe.rejectReasons.contains("Bad Picture") &&
-                              !rejectedRecipe.rejectReasons.contains("Bad Title") &&
-                              !rejectedRecipe.rejectReasons.contains("Missing Ingredients"))other++;
-
+                       Range<Long> recipeRejectTimeRange = Range.create(from.getTime(),to.getTime());
+                       rejectRecipeTime = rejectedRecipe.timestamp;
+                       if(recipeRejectTimeRange.contains(rejectRecipeTime)) {
+                           //  Log.w("TAG","Reasons:"+rejectedRecipe.rejectReasons);
+                           if (rejectedRecipe.rejectReasons.contains("Spam")) spam++;
+                           if (rejectedRecipe.rejectReasons.contains("Missing info")) missingInfo++;
+                           if (rejectedRecipe.rejectReasons.contains("Bad Picture")) badPicture++;
+                           if (rejectedRecipe.rejectReasons.contains("Bad Desc")) badDesc++;
+                           if (rejectedRecipe.rejectReasons.contains("Bad Title")) badTitle++;
+                           if (rejectedRecipe.rejectReasons.contains("Missing Ingredients"))
+                               missingIngredients++;
+                           if (!rejectedRecipe.rejectReasons.contains("Spam") &&
+                                   !rejectedRecipe.rejectReasons.contains("Missing info") &&
+                                   !rejectedRecipe.rejectReasons.contains("Bad Picture") &&
+                                   !rejectedRecipe.rejectReasons.contains("Bad Title") &&
+                                   !rejectedRecipe.rejectReasons.contains("Missing Ingredients"))
+                               other++;
+                       }
 
 
 
@@ -329,6 +364,14 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
 
         chartTopMod.setPieChartData(topModPieChart);
         chartRejectReasons.setPieChartData(rejectReasonPieChart);
+
+        spam=0;
+        missingIngredients=0;
+        missingInfo=0;
+        badDesc=0;
+        badPicture=0;
+        badTitle=0;
+        other=0;
 
     }
 
