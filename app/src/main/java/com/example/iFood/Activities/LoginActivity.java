@@ -163,7 +163,7 @@ public class LoginActivity extends AppCompatActivity {
                     etUser.setError("Must enter a valid email address");
                     etUser.requestFocus();
             } else{
-                // Declaring Dialog variables
+            // Declaring Dialog variables
             Button confirm, cancel;
             TextView userEmail;
             // Attaching variables to XML layout
@@ -214,74 +214,85 @@ public class LoginActivity extends AppCompatActivity {
                 progressDialog.setMessage(getString(R.string.connecting_login));
                 progressDialog.show();
                 progressDialog.setCanceledOnTouchOutside(false);
-                mAuth.signInWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                // Sign in success, update UI with the signed-in user's information
-                                //Log.d("TAG", "signInWithEmail:success");
-                                final FirebaseUser user = mAuth.getCurrentUser();
-                                assert user != null;
-                                if (user.isEmailVerified()) {
-                                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
-                                    ref.child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                            boolean foundUser = false;
-                                            for (DataSnapshot dbAnswer : snapshot.getChildren()) {
-                                                u = dbAnswer.getValue(Users.class);
-                                                assert u != null;
-                                                if (u.Email.equals(user.getEmail())) {
-                                                    foundUser = true;
-                                                    userRole = u.userRole;
-                                                    break;
-                                                }
-                                            }
-                                            if (foundUser) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        initSignIn(email,password);
+                    }
+                });
 
-                                                if (rmbMe.isChecked()) {
-                                                    saveData();
-                                                    Intent main = new Intent(LoginActivity.this, MainActivity.class);
-                                                    main.putExtra("username", u.getUsername());
-                                                    main.putExtra("userRole", u.userRole);
-                                                    startActivity(main);
 
-                                                } else {
-                                                    Intent main = new Intent(LoginActivity.this, MainActivity.class);
-                                                    main.putExtra("username", u.getUsername());
-                                                    main.putExtra("userRole", userRole);
-                                                    startActivity(main);
-
-                                                }
-                                                progressDialog.dismiss();
-                                                finish();
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError error) {
-
-                                        }
-                                    });
-                                } else {
-                                    progressDialog.dismiss();
-                                    // If sign in fails, display a message to the user.
-                                    //Log.w("TAG", "signInWithEmail:failure", task.getException());
-                                    Toast.makeText(LoginActivity.this, R.string.email_verify,
-                                            Toast.LENGTH_SHORT).show();
-
-                                    // ...
-                                }
-                            } else {
-                                progressDialog.dismiss();
-                                Toast.makeText(LoginActivity.this, R.string.incorrect_emailpassword,
-                                        Toast.LENGTH_SHORT).show();
-                            }
-
-                            // ...
-                        });
             }
         });
     } // onCreate ends
+
+    private void initSignIn(String email,String password) {
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        //Log.d("TAG", "signInWithEmail:success");
+                        final FirebaseUser user = mAuth.getCurrentUser();
+                        assert user != null;
+                        if (user.isEmailVerified()) {
+                            DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+                            ref.child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    boolean foundUser = false;
+                                    for (DataSnapshot dbAnswer : snapshot.getChildren()) {
+                                        u = dbAnswer.getValue(Users.class);
+                                        assert u != null;
+                                        if (u.Email.equals(user.getEmail())) {
+                                            foundUser = true;
+                                            userRole = u.userRole;
+                                            break;
+                                        }
+                                    }
+                                    if (foundUser) {
+
+                                        if (rmbMe.isChecked()) {
+                                            saveData();
+                                            Intent main = new Intent(LoginActivity.this, MainActivity.class);
+                                            main.putExtra("username", u.getUsername());
+                                            main.putExtra("userRole", u.userRole);
+                                            startActivity(main);
+
+                                        } else {
+                                            Intent main = new Intent(LoginActivity.this, MainActivity.class);
+                                            main.putExtra("username", u.getUsername());
+                                            main.putExtra("userRole", userRole);
+                                            startActivity(main);
+
+                                        }
+                                        progressDialog.dismiss();
+                                        finish();
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+
+                                }
+                            });
+                        } else {
+                            progressDialog.dismiss();
+                            // If sign in fails, display a message to the user.
+                            //Log.w("TAG", "signInWithEmail:failure", task.getException());
+                            Toast.makeText(LoginActivity.this, R.string.email_verify,
+                                    Toast.LENGTH_SHORT).show();
+
+                            // ...
+                        }
+                    } else {
+                        progressDialog.dismiss();
+                        Toast.makeText(LoginActivity.this, R.string.incorrect_emailpassword,
+                                Toast.LENGTH_SHORT).show();
+                    }
+
+                    // ...
+                });
+    }
 
     /**
      * Declaring variables and connecting them to the XML layout related to LoginActivity.
