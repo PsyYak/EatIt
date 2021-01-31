@@ -63,28 +63,34 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        myrecyclerView = findViewById(R.id.recyclerView_id);
-        myrecyclerView.setAdapter(myAdapter);
-        bottomAppBar = findViewById(R.id.bottomAppBar);
-        addIcon = findViewById(R.id.bottomAddIcon);
 
+        initUiViews();
 
         getRecipeList();
+        checkPref();
+        initMenu();
 
-        pref = getSharedPreferences("userData",MODE_PRIVATE);
-        if(pref.contains("userRole")){
-            userRole = pref.getString("userRole",null);
-            userName = pref.getString("username",null);
-        }else{
-            userRole = getIntent().getStringExtra("userRole");
-            userName = getIntent().getStringExtra("username");
-        }
+
 
         ///////////////////////////////
         if(getSupportActionBar() != null){
             getSupportActionBar().hide();
         }
 
+
+
+
+        UpdateToken();
+    } // onCreate Ends
+
+    private void initUiViews() {
+        myrecyclerView = findViewById(R.id.recyclerView_id);
+        myrecyclerView.setAdapter(myAdapter);
+        bottomAppBar = findViewById(R.id.bottomAppBar);
+        addIcon = findViewById(R.id.bottomAddIcon);
+    }
+
+    private void initMenu() {
         bottomAppBar.setNavigationOnClickListener(v -> {
             NavDrawFragment bottomNavFrag = new NavDrawFragment();
             Bundle bundle = new Bundle();
@@ -104,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
             }
             return false;
         });
-        
+
         ///////////////////////////////
         addIcon.setOnClickListener(v -> {
             AddDrawFragment addIcon = new AddDrawFragment();
@@ -114,10 +120,18 @@ public class MainActivity extends AppCompatActivity {
             addIcon.setArguments(bundle);
             addIcon.show(getSupportFragmentManager(),"addIconNav");
         });
+    }
 
-
-        UpdateToken();
-    } // onCreate Ends
+    private void checkPref() {
+        pref = getSharedPreferences("userData",MODE_PRIVATE);
+        if(pref.contains("userRole")){
+            userRole = pref.getString("userRole",null);
+            userName = pref.getString("username",null);
+        }else{
+            userRole = getIntent().getStringExtra("userRole");
+            userName = getIntent().getStringExtra("username");
+        }
+    }
 
 
     private void UpdateToken(){

@@ -68,6 +68,7 @@ public class RecipeActivity extends AppCompatActivity {
     TextView mRecipeName,mRecipeMethodTitle;
     Button confirm, cancel;
     TextView option1,option2,option3,option4,option5,option6,recipeFeatureSelection,recipeType;
+    CheckBox reason1,reason2,reason3,reason4,reason5,reason6;
     EditText otherReason;
     ExpandableTextView mRecipeIngredients,mRecipe;
     ProgressDialog progressDialog;
@@ -81,6 +82,79 @@ public class RecipeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_recipe);
 
         // get information from intent
+        initIntentInfo();
+        initUiViews();
+
+        initSetData();
+
+        //Setting the ExpandableText closed until user open it
+        mRecipeIngredients.resetState(true);
+        mRecipe.resetState(true);
+
+        initListeners();
+        // Listeners
+        mRecipeIngredients.setOnClickListener(v -> mRecipeIngredients.animate());
+        mRecipe.setOnClickListener(v -> mRecipe.animate());
+
+        btnMsg.setOnClickListener(v -> {
+            Intent newMsg = new Intent(RecipeActivity.this, SendMessage.class);
+            newMsg.putExtra("username",userName);
+            newMsg.putExtra("activity",activity);
+            newMsg.putExtra("To User",addedBy);
+            newMsg.putExtra("msgTitle",Title);
+            startActivity(newMsg);
+        });
+
+
+        handleButtons();
+    } // onCreate ends
+
+    private void initListeners() {
+        btnFav.setOnClickListener(v -> {
+            // Add to fav in DB
+            addToFav();
+
+        });
+
+        btnReport.setOnClickListener(v -> {
+            reportRecipe();
+
+        });
+
+
+        btnShare.setOnClickListener(v -> new Thread(this::shareRecipeContent).start());
+    }
+
+
+
+
+    private void initSetData() {
+        mRecipeName.setText(Title);
+        mRecipeIngredients.setText(Ingredients);
+        mRecipeMethodTitle.setText(MethodTitle);
+        mRecipe.setText(Recipe);
+        recipeFeatureSelection.setText(recipeFeature);
+        recipeType.setText(recipe_Type);
+    }
+
+    private void initUiViews() {
+        //////////////
+        progressDialog = new ProgressDialog(this);
+        btnFav = findViewById(R.id.btnFav);
+        btnMsg = findViewById(R.id.btnSendMessage);
+        btnShare = findViewById(R.id.btnShare);
+        btnReport = findViewById(R.id.btnReport);
+
+        //////////////
+        mRecipeName = findViewById(R.id.text_recipe);
+        mRecipeIngredients = findViewById(R.id.ingredients);
+        mRecipeMethodTitle = findViewById(R.id.method);
+        mRecipe = findViewById(R.id.recipe);
+        recipeType = findViewById(R.id.recipeType);
+        recipeFeatureSelection = findViewById(R.id.recipeFeatureSelection);
+    }
+
+    private void initIntentInfo() {
 
         approved = getIntent().getStringExtra("approved");
         userRole = getIntent().getStringExtra("userRole");
@@ -97,98 +171,8 @@ public class RecipeActivity extends AppCompatActivity {
         recipeImage = getIntent().getStringExtra("Thumbnail");
         time = getIntent().getLongExtra("time",0);
 
+    }
 
-        //////////////
-        progressDialog = new ProgressDialog(this);
-        btnFav = findViewById(R.id.btnFav);
-        btnMsg = findViewById(R.id.btnSendMessage);
-        btnShare = findViewById(R.id.btnShare);
-        btnReport = findViewById(R.id.btnReport);
-
-        //////////////
-        mRecipeName = findViewById(R.id.text_recipe);
-        mRecipeIngredients = findViewById(R.id.ingredients);
-        mRecipeMethodTitle = findViewById(R.id.method);
-        mRecipe = findViewById(R.id.recipe);
-        recipeType = findViewById(R.id.recipeType);
-        recipeFeatureSelection = findViewById(R.id.recipeFeatureSelection);
-        ///////////////
-
-
-
-        mRecipeName.setText(Title);
-        mRecipeIngredients.setText(Ingredients);
-        mRecipeMethodTitle.setText(MethodTitle);
-        mRecipe.setText(Recipe);
-        recipeFeatureSelection.setText(recipeFeature);
-        recipeType.setText(recipe_Type);
-
-        //Setting the ExpandableText closed until user open it
-        mRecipeIngredients.resetState(true);
-        mRecipe.resetState(true);
-
-        // Listeners
-        mRecipeIngredients.setOnClickListener(v -> mRecipeIngredients.animate());
-        mRecipe.setOnClickListener(v -> mRecipe.animate());
-
-        btnMsg.setOnClickListener(v -> {
-            Intent newMsg = new Intent(RecipeActivity.this, SendMessage.class);
-            newMsg.putExtra("username",userName);
-            newMsg.putExtra("activity",activity);
-            newMsg.putExtra("To User",addedBy);
-            newMsg.putExtra("msgTitle",Title);
-            startActivity(newMsg);
-        });
-        btnFav.setOnClickListener(v -> {
-            // Add to fav in DB
-            addToFav();
-
-        });
-
-        btnReport.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.setType("plain/text");
-            intent.putExtra(Intent.EXTRA_EMAIL, new String[] { "ifoodspprt@gmail.com" });
-            intent.putExtra(Intent.EXTRA_SUBJECT, "Recipe Report: "+Title);
-            intent.putExtra(Intent.EXTRA_TEXT, "Hi, I would like to report recipe id ("+recipeID+") because...");
-            startActivity(Intent.createChooser(intent, ""));
-        });
-
-
-        btnShare.setOnClickListener(v -> new Thread(() -> {
-
-            Intent shareRecipe = new Intent(Intent.ACTION_SEND);
-            shareRecipe.setType("image/*");
-            image = getUrltoBitMap(recipeImage);
-            imageToSend  = getLocalBitmapUri(image);
-            File file = new File(Objects.requireNonNull(imageToSend.getPath()));
-            Uri uriToSend = FileProvider.getUriForFile(RecipeActivity.this,getApplicationContext().getPackageName()+".provider",file);
-            String ingredients = mRecipeIngredients.getTextContent().toString();
-            String recipeContent = mRecipe.getTextContent().toString();
-            shareRecipe.putExtra(Intent.EXTRA_SUBJECT,mRecipeName.getText().toString());
-            String text = getResources().getString(R.string.ingredients)+
-                    System.getProperty("line.separator")+
-                    System.getProperty("line.separator")+
-                    ingredients+
-                    System.getProperty("line.separator")+
-                    System.getProperty("line.separator")+
-                    getResources().getString(R.string.method)+
-                    System.getProperty("line.separator")+
-                    System.getProperty("line.separator")+
-                    recipeContent+
-                    System.getProperty("line.separator")+
-                    System.getProperty("line.separator")+
-                    "Shared from iFood app, look for the app on the Play Store!";
-            shareRecipe.putExtra(Intent.EXTRA_TEXT,text);
-            shareRecipe.putExtra(Intent.EXTRA_STREAM,uriToSend);
-            shareRecipe.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            shareRecipe.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(Intent.createChooser(shareRecipe,"Share this Recipe via"));
-
-        }).start());
-
-        handleButtons();
-    } // onCreate ends
     /**
      * This function is responsible for either hiding not needed buttons in the screen "My Recipes" and admin buttons
      * Prevents from users to add their own recipes to their favorite list.
@@ -224,69 +208,13 @@ public class RecipeActivity extends AppCompatActivity {
                         myDialog = new Dialog(RecipeActivity.this);
                         // Layout
                         myDialog.setContentView(R.layout.delete_reason_dialog);
-
-                        // Textview options
-                        option1 = myDialog.findViewById(R.id.tv1);
-                        option2 = myDialog.findViewById(R.id.tv2);
-                        option3 = myDialog.findViewById(R.id.tv3);
-                        option4 = myDialog.findViewById(R.id.tv4);
-                        option5 = myDialog.findViewById(R.id.tv5);
-                        option6 = myDialog.findViewById(R.id.tv6);
-
-                        // Checkbox
-                        CheckBox reason1 = myDialog.findViewById(R.id.reason1);
-                        CheckBox reason2 = myDialog.findViewById(R.id.reason2);
-                        CheckBox reason3 = myDialog.findViewById(R.id.reason3);
-                        CheckBox reason4 = myDialog.findViewById(R.id.reason4);
-                        CheckBox reason5 = myDialog.findViewById(R.id.reason5);
-                        CheckBox reason6 = myDialog.findViewById(R.id.reason6);
-                        // Edittext
-                        otherReason = myDialog.findViewById(R.id.etOtherReason);
-
-                        // Buttons
-                        confirm = myDialog.findViewById(R.id.btnReasonConfirm);
-                        cancel = myDialog.findViewById(R.id.btnReasonCancel);
-
-
+                        initUiDialogViews();
                         // Title
                         myDialog.setTitle("Rejection Reason");
 
                         // Listeners
                         confirm.setOnClickListener(v1 -> {
-                            if (reason1.isChecked()) {
-                                if (reason.isEmpty()) reason += option1.getText().toString();
-                                else reason += "," + option1.getText().toString();
-
-                            }
-                            if (reason2.isChecked()) {
-                                if (reason.isEmpty()) reason += option2.getText().toString();
-                                else reason += "," + option2.getText().toString();
-
-                            }
-                            if (reason3.isChecked()) {
-                                if (reason.isEmpty()) reason += option3.getText().toString();
-                                else reason += "," + option3.getText().toString();
-
-                            }
-                            if (reason4.isChecked()) {
-                                if (reason.isEmpty()) reason += option4.getText().toString();
-                                else reason += "," + option4.getText().toString();
-
-                            }
-                            if (reason5.isChecked()) {
-                                if (reason.isEmpty()) reason += option5.getText().toString();
-                                else reason += "," + option5.getText().toString();
-
-                            }
-                            if (reason6.isChecked()) {
-                                if (reason.isEmpty()) reason += option6.getText().toString();
-                                else reason += "," + option6.getText().toString();
-
-                            }
-                            if (!otherReason.getText().toString().isEmpty()) {
-                                if (reason.isEmpty()) reason += otherReason.getText().toString();
-                                else reason += "," + otherReason.getText().toString();
-                            }
+                            setReason();
                             // Log.w("TAG","Reason: "+reason);
                             myDialog.dismiss();
                             if (!reason.isEmpty()) {
@@ -297,22 +225,8 @@ public class RecipeActivity extends AppCompatActivity {
                                 String formattedDate = df.format(date);
 
                                 // Get the recipe details for future review later on
-                                RejectedRecipe rejectedRecipe;
-                                rejectedRecipe = new RejectedRecipe(recipeID, Title, Recipe, MethodTitle
-                                        , Ingredients, recipeImage, reason, addedBy,recipe_Type,recipeFeature, userName, false,
-                                        formattedDate, time);
+                                deleteRecipe(formattedDate);
 
-                                //deleted_list.child(userName).child(recipeID).setValue(rejectedRecipe);
-
-                                deleted_list.child(userName).child(recipeID).setValue(rejectedRecipe).addOnSuccessListener(aVoid -> {
-                                    // Remove the recipe from waiting list
-                                    Log.w("TAG", "Recipe added to rejected list");
-                                    recipesRef.child(recipeID).removeValue();
-                                    finish();
-                                }).addOnFailureListener(e -> {
-                                    Toast.makeText(RecipeActivity.this, "Please try again", Toast.LENGTH_SHORT).show();
-                                    Log.w("TAG", "Error:" + e.getMessage());
-                                });
                             } else {
                                 Toast.makeText(RecipeActivity.this, "Please choose at least 1 option.", Toast.LENGTH_SHORT).show();
                             }
@@ -338,6 +252,82 @@ public class RecipeActivity extends AppCompatActivity {
 
             }
         }
+
+    private void deleteRecipe(String date) {
+        RejectedRecipe rejectedRecipe;
+        rejectedRecipe = new RejectedRecipe(recipeID, Title, Recipe, MethodTitle
+                , Ingredients, recipeImage, reason, addedBy,recipe_Type,recipeFeature, userName, false,
+                date, time);
+        deleted_list.child(userName).child(recipeID).setValue(rejectedRecipe).addOnSuccessListener(aVoid -> {
+            // Remove the recipe from waiting list
+            Log.w("TAG", "Recipe added to rejected list");
+            recipesRef.child(recipeID).removeValue();
+            finish();
+        }).addOnFailureListener(e -> {
+            Toast.makeText(RecipeActivity.this, "Please try again", Toast.LENGTH_SHORT).show();
+            Log.w("TAG", "Error:" + e.getMessage());
+        });
+    }
+
+    private void setReason() {
+        if (reason1.isChecked()) {
+            if (reason.isEmpty()) reason += option1.getText().toString();
+            else reason += "," + option1.getText().toString();
+
+        }
+        if (reason2.isChecked()) {
+            if (reason.isEmpty()) reason += option2.getText().toString();
+            else reason += "," + option2.getText().toString();
+
+        }
+        if (reason3.isChecked()) {
+            if (reason.isEmpty()) reason += option3.getText().toString();
+            else reason += "," + option3.getText().toString();
+
+        }
+        if (reason4.isChecked()) {
+            if (reason.isEmpty()) reason += option4.getText().toString();
+            else reason += "," + option4.getText().toString();
+
+        }
+        if (reason5.isChecked()) {
+            if (reason.isEmpty()) reason += option5.getText().toString();
+            else reason += "," + option5.getText().toString();
+
+        }
+        if (reason6.isChecked()) {
+            if (reason.isEmpty()) reason += option6.getText().toString();
+            else reason += "," + option6.getText().toString();
+
+        }
+        if (!otherReason.getText().toString().isEmpty()) {
+            if (reason.isEmpty()) reason += otherReason.getText().toString();
+            else reason += "," + otherReason.getText().toString();
+        }
+    }
+
+    private void initUiDialogViews() {
+
+        // Checkbox
+        reason1 = myDialog.findViewById(R.id.reason1);
+        reason2 = myDialog.findViewById(R.id.reason2);
+        reason3 = myDialog.findViewById(R.id.reason3);
+        reason4 = myDialog.findViewById(R.id.reason4);
+        reason5 = myDialog.findViewById(R.id.reason5);
+        reason6 = myDialog.findViewById(R.id.reason6);
+        // TextView
+        option1 = myDialog.findViewById(R.id.tv1);
+        option2 = myDialog.findViewById(R.id.tv2);
+        option3 = myDialog.findViewById(R.id.tv3);
+        option4 = myDialog.findViewById(R.id.tv4);
+        option5 = myDialog.findViewById(R.id.tv5);
+        option6 = myDialog.findViewById(R.id.tv6);
+        // EditText
+        otherReason = myDialog.findViewById(R.id.etOtherReason);
+        // Buttons
+        confirm = myDialog.findViewById(R.id.btnReasonConfirm);
+        cancel = myDialog.findViewById(R.id.btnReasonCancel);
+    }
 
 
     /**
@@ -420,6 +410,44 @@ public class RecipeActivity extends AppCompatActivity {
      });
 
  }
+    private void reportRecipe() {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("plain/text");
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[] { "ifoodspprt@gmail.com" });
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Recipe Report: "+Title);
+        intent.putExtra(Intent.EXTRA_TEXT, "Hi, I would like to report recipe id ("+recipeID+") because...");
+        startActivity(Intent.createChooser(intent, ""));
+    }
+
+    private void shareRecipeContent() {
+        Intent shareRecipe = new Intent(Intent.ACTION_SEND);
+        shareRecipe.setType("image/*");
+        image = getUrltoBitMap(recipeImage);
+        imageToSend  = getLocalBitmapUri(image);
+        File file = new File(Objects.requireNonNull(imageToSend.getPath()));
+        Uri uriToSend = FileProvider.getUriForFile(RecipeActivity.this,getApplicationContext().getPackageName()+".provider",file);
+        String ingredients = mRecipeIngredients.getTextContent().toString();
+        String recipeContent = mRecipe.getTextContent().toString();
+        shareRecipe.putExtra(Intent.EXTRA_SUBJECT,mRecipeName.getText().toString());
+        String text = getResources().getString(R.string.ingredients)+
+                System.getProperty("line.separator")+
+                System.getProperty("line.separator")+
+                ingredients+
+                System.getProperty("line.separator")+
+                System.getProperty("line.separator")+
+                getResources().getString(R.string.method)+
+                System.getProperty("line.separator")+
+                System.getProperty("line.separator")+
+                recipeContent+
+                System.getProperty("line.separator")+
+                System.getProperty("line.separator")+
+                "Shared from iFood app, look for the app on the Play Store!";
+        shareRecipe.putExtra(Intent.EXTRA_TEXT,text);
+        shareRecipe.putExtra(Intent.EXTRA_STREAM,uriToSend);
+        shareRecipe.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        shareRecipe.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(Intent.createChooser(shareRecipe,"Share this Recipe via"));
+    }
     /**
      * Register our Broadcast Receiver when opening the app.
      */

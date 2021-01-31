@@ -116,68 +116,23 @@ public class SignUpActivity extends AppCompatActivity {
 
                 }
                 else {
-                    Log.w("TAG","Email:"+isValidEmail(Email)+",Phone:"+validateTelAndMobileNo(Phone));
+                 //Log.w("TAG","Email:"+isValidEmail(Email)+",Phone:"+validateTelAndMobileNo(Phone));
                         if (checkPassword()) {
                             {
-                                ref.child(Username).addListenerForSingleValueEvent(new ValueEventListener() {
+                                runOnUiThread(new Runnable() {
                                     @Override
-                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                        if (dataSnapshot.exists()) {
-                                            // User name already exists.
-                                            Toast.makeText(SignUpActivity.this, "Username already found in DB, try different Username", Toast.LENGTH_SHORT).show();
-                                            etUsername.setText("");
-                                            etPassword.setText("");
-                                            etUsername.requestFocus();
-                                        } else {
-                                            final String email = etEmail.getText().toString();
-                                            String password = etPassword.getText().toString();
-                                            mAuth.createUserWithEmailAndPassword(email, password)
-                                                    .addOnCompleteListener(task -> {
-                                                        if (task.isSuccessful()) {
-                                                            uid = Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getUser()).getUid();
-                                                            // Sign in success, update UI with the signed-in user's information
-                                                            //Log.d("TAG", "createUserWithEmail:success");
-                                                            progressDialog.setMessage("Registering..");
-                                                            progressDialog.setCanceledOnTouchOutside(false);
-                                                            progressDialog.show();
-                                                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                                            imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                                                            final byte[] data2 = baos.toByteArray();
-                                                            final UploadTask uploadTask = storageRef.child("Users_Profiles").child(Username).putBytes(data2);
-                                                            // close onSuccess mehtod
-                                                            uploadTask.addOnFailureListener(exception -> {
-                                                                // Handle unsuccessful uploads
-                                                            }).addOnSuccessListener(taskSnapshot -> {
-                                                                if (taskSnapshot.getMetadata() != null) {
-                                                                    if (taskSnapshot.getMetadata().getReference() != null) {
-                                                                        final Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
-                                                                        result.addOnSuccessListener(uri -> {
-                                                                            picUrl = uri.toString();
-                                                                            String password1 = etPassword.getText().toString();
-                                                                            addUser(Username, Fname, Phone, Lname, Email);
-                                                                            mAuth.signInWithEmailAndPassword(Email, password1).addOnCompleteListener(task1 -> {
-                                                                               AuthResult authResult = task1.getResult();
-                                                                                assert authResult != null;
-                                                                                FirebaseUser firebaseUser = authResult.getUser();
-                                                                                assert firebaseUser != null;
-                                                                                firebaseUser.sendEmailVerification();
-                                                                            });
-                                                                            // Log.i("URL", "Image URL:" + picUrl);
-                                                                        });
-                                                                    } // close 2nd if
-                                                                } // close 1st if
-                                                            }); // close OnSuccessListener
-                                                            //updateUI(user);
-                                                        } else {
-                                                            // If sign in fails, display a message to the user.
-                                                            Log.w("TAG", "createUserWithEmail:failure", task.getException());
-                                                            Toast.makeText(SignUpActivity.this, "User registration failed, check Email.",
-                                                                    Toast.LENGTH_SHORT).show();
-
-                                                        }
-
-                                                        // ...
-                                                    });
+                                    public void run() {
+                                        ref.child(Username).addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                if (dataSnapshot.exists()) {
+                                                    // User name already exists.
+                                                          userExists();
+                                                } else {
+                                                    progressDialog.setMessage("Registering..");
+                                                    progressDialog.setCanceledOnTouchOutside(false);
+                                                    progressDialog.show();
+                                                    createUser();
                                             /*
                                             ref.orderByChild("Email").equalTo(Email).addListenerForSingleValueEvent(new ValueEventListener() {
                                                 @Override
@@ -226,13 +181,16 @@ public class SignUpActivity extends AppCompatActivity {
                                                 public void onCancelled(@NonNull DatabaseError databaseError) {
                                                 }
                                             });*/
-                                        }
-                                    } // close onDataChange
+                                                }
+                                            } // close onDataChange
 
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                                            }
+                                        });
                                     }
                                 });
+
                             }
                         }else{
                             if(Password.length()>=8){
@@ -273,6 +231,53 @@ public class SignUpActivity extends AppCompatActivity {
 
 
     } // OnCreate ends
+
+    private void createUser() {
+        mAuth.createUserWithEmailAndPassword(Email, Password)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        uid = Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getUser()).getUid();
+                        // Sign in success, update UI with the signed-in user's information
+
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                        final byte[] data2 = baos.toByteArray();
+                        final UploadTask uploadTask = storageRef.child("Users_Profiles").child(Username).putBytes(data2);
+                        // close onSuccess mehtod
+                        uploadTask.addOnFailureListener(exception -> {
+                            // Handle unsuccessful uploads
+                        }).addOnSuccessListener(taskSnapshot -> {
+                            if (taskSnapshot.getMetadata() != null) {
+                                if (taskSnapshot.getMetadata().getReference() != null) {
+                                    final Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
+                                    result.addOnSuccessListener(uri -> {
+                                        picUrl = uri.toString();
+                                        addUser(Username, Fname, Phone, Lname, Email);
+                                        mAuth.signInWithEmailAndPassword(Email, Password).addOnCompleteListener(task1 -> {
+                                            AuthResult authResult = task1.getResult();
+                                            assert authResult != null;
+                                            FirebaseUser firebaseUser = authResult.getUser();
+                                            assert firebaseUser != null;
+                                            firebaseUser.sendEmailVerification();
+                                        });
+                                        // Log.i("URL", "Image URL:" + picUrl);
+                                    });
+                                } // close 2nd if
+                            } // close 1st if
+                        }); // close OnSuccessListener
+                        //updateUI(user);
+                    }
+
+                    // ...
+                });
+    }
+
+    private void userExists() {
+        Toast.makeText(SignUpActivity.this, "Username already found in DB, try different Username", Toast.LENGTH_SHORT).show();
+        etUsername.setText("");
+        etPassword.setText("");
+        etUsername.requestFocus();
+    }
 
     private void initUiViews() {
         Fname = etFname.getText().toString();

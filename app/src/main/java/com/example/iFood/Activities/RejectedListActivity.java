@@ -49,10 +49,8 @@ public class RejectedListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rejected_list);
 
-
-        rejectedList = findViewById(R.id.rejectList);
-        bottomAppBar = findViewById(R.id.bottomAppBar);
-        addIcon = findViewById(R.id.bottomAddIcon);
+        initUiViews();
+        initMenu();
 
         //////////
 
@@ -63,6 +61,11 @@ public class RejectedListActivity extends AppCompatActivity {
             getSupportActionBar().hide();
         }
 
+
+
+    } // onCreate ends
+
+    private void initMenu() {
         bottomAppBar.setNavigationOnClickListener(v -> {
             NavDrawFragment bottomNavFrag = new NavDrawFragment();
             Bundle bundle = new Bundle();
@@ -91,8 +94,13 @@ public class RejectedListActivity extends AppCompatActivity {
             addIcon.setArguments(bundle);
             addIcon.show(getSupportFragmentManager(),"TAG");
         });
+    }
 
-    } // onCreate ends
+    private void initUiViews() {
+        rejectedList = findViewById(R.id.rejectList);
+        bottomAppBar = findViewById(R.id.bottomAppBar);
+        addIcon = findViewById(R.id.bottomAddIcon);
+    }
 
 
     private void getRejectedList(){

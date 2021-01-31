@@ -29,9 +29,10 @@ import java.util.Locale;
 public class About extends AppCompatActivity {
     ConnectionBCR bcr = new ConnectionBCR();
     String formattedDate;
-    ImageView donate,sendEmail,sendWhatsApp;
-    TextView tvDate;
-    public static String url = "https://paypal.me/YakirMalka?locale.x=en_US";
+    String url = "https://paypal.me/YakirMalka?locale.x=en_US";
+    private ImageView donate,sendEmail,sendWhatsApp;
+    private TextView tvDate;
+
 
     @SuppressLint({"SetJavaScriptEnabled", "SetTextI18n"})
     @Override
@@ -43,10 +44,20 @@ public class About extends AppCompatActivity {
             getSupportActionBar().hide();
         }
 
-        tvDate = findViewById(R.id.tvCreatedBy);
-        sendEmail = findViewById(R.id.sendEmail);
-        sendWhatsApp = findViewById(R.id.sendWhatsApp);
-        donate = findViewById(R.id.donate);
+        initUiViews();
+        initListeners();
+        initCurrentYear();
+
+
+
+    }
+
+    private void initCurrentYear() {
+        formattedDate = new SimpleDateFormat("yyyy", Locale.getDefault()).format(new Date());
+        tvDate.setText(formattedDate);
+    }
+
+    private void initListeners() {
         donate.setOnClickListener(v -> {
             Intent donate = new Intent();
             donate.setAction(Intent.ACTION_VIEW);
@@ -70,9 +81,14 @@ public class About extends AppCompatActivity {
             }
         }).start());
         sendWhatsApp.setOnClickListener(v -> openWhatsApp());
+    }
 
-        formattedDate = new SimpleDateFormat("yyyy", Locale.getDefault()).format(new Date());
-        tvDate.setText(formattedDate);
+
+    private void initUiViews() {
+        tvDate = findViewById(R.id.tvCreatedBy);
+        sendEmail = findViewById(R.id.sendEmail);
+        sendWhatsApp = findViewById(R.id.sendWhatsApp);
+        donate = findViewById(R.id.donate);
     }
 
     /**
