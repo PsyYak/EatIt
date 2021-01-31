@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -35,7 +36,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -52,10 +56,12 @@ public class MainActivity extends AppCompatActivity {
     FloatingActionButton addIcon;
     RecyclerView myrecyclerView;
     MainRecipeAdapter myAdapter;
-    SharedPreferences pref;
+    SharedPreferences pref, sharedPreferences;
+
     List<Recipes> recipes1 = new ArrayList<>();
     String activity = this.getClass().getName(),userRole,userName;
     DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Recipes");
+    DatabaseReference refFav = FirebaseDatabase.getInstance().getReference().child("Favorites");
 
 
 
@@ -70,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
         checkPref();
         initMenu();
 
+        initFavPref();
+
 
 
         ///////////////////////////////
@@ -83,11 +91,71 @@ public class MainActivity extends AppCompatActivity {
         UpdateToken();
     } // onCreate Ends
 
+    private void initFavPref() {
+        List<String> favList = new ArrayList<>();
+        sharedPreferences = getSharedPreferences("favRecipes",MODE_PRIVATE);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                refFav.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                        for(DataSnapshot dst : dataSnapshot.getChildren()){
+                            if(Objects.equals(dst.getKey(), userName))
+                                for(DataSnapshot userRecipes : dst.getChildren()){
+                                    Recipes results = userRecipes.getValue(Recipes.class);
+                                    favList.add(results.getId());
+                                    Gson gson = new Gson();
+                                    String json = gson.toJson(favList);
+                                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                                    editor.putString("Set",json);
+                                    editor.apply();
+                                    editor.commit();
+
+
+                                }
+
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
+        });
+
+
+
+    }
+
+    private void checkFavPref() {
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString("Set", "");
+        if (json.isEmpty()) {
+            Toast.makeText(MainActivity.this, "There is something error", Toast.LENGTH_LONG).show();
+        } else {
+            Type type = new TypeToken<List<String>>() {
+            }.getType();
+
+        List<String> arrPackageData = gson.fromJson(json, type);
+        for(String data:arrPackageData) {
+            Log.w("TAG","ID:"+data);
+        }
+        }
+    }
+
     private void initUiViews() {
         myrecyclerView = findViewById(R.id.recyclerView_id);
         myrecyclerView.setAdapter(myAdapter);
         bottomAppBar = findViewById(R.id.bottomAppBar);
         addIcon = findViewById(R.id.bottomAddIcon);
+
+
+        sharedPreferences = getSharedPreferences("favRecipes",MODE_PRIVATE);
     }
 
     private void initMenu() {

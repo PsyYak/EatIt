@@ -87,8 +87,6 @@ public class EditRecipeActivity extends AppCompatActivity {
         etTitle.setText(getIntent().getStringExtra("RecipeName"));
         etIngredients.setText(getIntent().getStringExtra("RecipeIngredients"));
         etContent.setText(getIntent().getStringExtra("Recipe"));
-        Log.w("TAG","type:"+recipe_Type+",from intent:"+ getIntent().getStringExtra("recipeType"));
-        Log.w("TAG","feature:"+recipe_Feature+",from intent:"+ getIntent().getStringExtra("recipeFeature"));
         tvRecipe_type.setText(recipe_Type);
         tvRecipe_features.setText(recipe_Feature);
 
@@ -104,7 +102,6 @@ public class EditRecipeActivity extends AppCompatActivity {
             if(etContent.getText().toString().isEmpty() ||
                etIngredients.getText().toString().isEmpty() ||
                etTitle.getText().toString().isEmpty() ||
-
                Objects.equals(ivRecipeImage.getDrawable().getConstantState(), getResources().getDrawable(R.drawable.no_image).getConstantState())){
                 Toast.makeText(EditRecipeActivity.this,"Make sure you filled everything!",Toast.LENGTH_SHORT).show();
             }else{

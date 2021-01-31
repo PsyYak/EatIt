@@ -70,7 +70,7 @@ public class About extends AppCompatActivity {
 
             Intent i = new Intent(Intent.ACTION_SEND);
 
-            i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"psyak62@gmail.com"});
+            i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"ifoodspprt@gmail.com"});
             i.putExtra(Intent.EXTRA_SUBJECT, "");
             i.putExtra(Intent.EXTRA_TEXT   , "");
             i.setType("message/rfc822");

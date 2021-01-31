@@ -4,6 +4,7 @@ package com.example.iFood.Adapters;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -15,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.os.Handler;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -32,16 +32,21 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 import java.util.Objects;
+
+import static android.content.Context.MODE_PRIVATE;
 
 
 /**
@@ -50,7 +55,7 @@ import java.util.Objects;
  * and allow the user to move to Recipe Activity to view all the information regarding the recipe.
  */
 public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.MyHolder> {
-
+    SharedPreferences sharedPreferences;
     private String userName,userRole,check;
     private Bitmap image;
     private Uri imageToSend;
@@ -154,16 +159,14 @@ public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.My
             }).start();
 
         });
-
+        sharedPreferences = mContext.getSharedPreferences("favRecipes",MODE_PRIVATE);
+        if(checkFavPref(mData.get(i).getId())){
+            myHolder.card_like.setTextColor(Color.RED);
+        }else{
+            myHolder.card_like.setTextColor(Color.GRAY);
+        }
         myHolder.card_like.setOnClickListener(v -> {
             addFav(userName,mData.get(i));
-
-            int color = myHolder.card_like.getCurrentTextColor();
-            if(color == Color.RED){
-                myHolder.card_like.setTextColor(Color.GRAY);
-            }else{
-                myHolder.card_like.setTextColor(Color.RED);
-            }
         });
     }
 
@@ -185,6 +188,11 @@ public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.My
                         isExists = true;
                          //Log.w("TAG", "isExists:" + isExists);
                         Toast.makeText(((Activity) mContext), "Recipe removed from favorites.", Toast.LENGTH_SHORT).show();
+                        sharedPreferences = mContext.getSharedPreferences("favRecipes",MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.remove(recipe.id);
+                        editor.apply();
+
                         break;
                     }
 
@@ -195,7 +203,11 @@ public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.My
                     // didn't found the ID meaning not in the list so adding to user fav list
                     //Log.w("TAG","Going to add to fav!");
                     Fav_ref.child(userName).child(recipe.getId()).setValue(recipe);
-
+                    sharedPreferences = mContext.getSharedPreferences("favRecipes",MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("Set",recipe.id);
+                    editor.apply();
+                    editor.commit();
                     Toast.makeText(((Activity) mContext),"Added to favorites!",Toast.LENGTH_SHORT).show();
 
                 }
@@ -238,11 +250,32 @@ public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.My
         return bmpUri;
     }
 
+    private boolean checkFavPref(String id) {
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString("Set", "");
+        if (json.isEmpty()) {
+            Log.e("Error", "Error");
+        } else {
+            Type type = new TypeToken<List<String>>() {
+            }.getType();
+
+            List<String> arrPackageData = gson.fromJson(json, type);
+            for (String data : arrPackageData) {
+                if(data.equals(id))
+                    return true;
+
+            }
+        }
+        return false;
+    }
+
+
     public static class MyHolder extends RecyclerView.ViewHolder {
 
         TextView recipeTitle,card_like,card_share,card_msg;
         CardView cardView;
         ImageView img_recipe;
+
 
         public MyHolder(@NonNull View itemView) {
             super(itemView);

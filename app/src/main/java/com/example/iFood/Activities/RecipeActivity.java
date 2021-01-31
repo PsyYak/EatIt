@@ -385,7 +385,7 @@ public class RecipeActivity extends AppCompatActivity {
                              ref.child(userName).child(recipeID).removeValue();
                              isExists = true;
                             // Log.w("TAG", "isExists2:" + isExists);
-                             Toast.makeText(RecipeActivity.this, "Recipe removed from favorites.", Toast.LENGTH_SHORT).show();
+                             Toast.makeText(RecipeActivity.this, "Recipe removed from favorites..", Toast.LENGTH_SHORT).show();
                              break;
                          }
 
@@ -397,7 +397,7 @@ public class RecipeActivity extends AppCompatActivity {
                  Recipes r;
                  r= new Recipes(Title,Ingredients,MethodTitle,Recipe,recipeImage,recipeID,addedBy,recipe_Type,recipeFeature);
                  ref.child(userName).child(recipeID).setValue(r);
-                 Toast.makeText(RecipeActivity.this,"Added to favorites!",Toast.LENGTH_SHORT).show();
+                 Toast.makeText(RecipeActivity.this,"Added to favorites..",Toast.LENGTH_SHORT).show();
 
              }
          }

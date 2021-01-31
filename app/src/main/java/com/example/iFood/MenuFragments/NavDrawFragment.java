@@ -133,6 +133,9 @@ public class NavDrawFragment extends BottomSheetDialogFragment {
                     SharedPreferences.Editor delData = mContext.getSharedPreferences("userData", MODE_PRIVATE).edit();
                     delData.clear();
                     delData.apply();
+                    delData = mContext.getSharedPreferences("favRecipes",MODE_PRIVATE).edit();
+                    delData.clear();
+                    delData.apply();
                     Objects.requireNonNull(getActivity()).finishAffinity();
                 });
                 final AlertDialog alertExit = builder.create();

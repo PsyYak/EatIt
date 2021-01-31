@@ -60,11 +60,13 @@ public class ProfileActivity extends AppCompatActivity {
     // Patterns for inputs
     public final Pattern textPattern = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$");
     public final Pattern namePattern = Pattern.compile("[a-zA-Z ]+");
-    ProgressDialog progressDialog;
-    Dialog myDialog;
-    FloatingActionButton btnRefresh,btnBack;
-    TextView firstName,lastName,phone,email,tvUsername;
-    ImageView userProfileImage,editPass,editFname,editLname,editPhone;
+    private ProgressDialog progressDialog;
+    private Dialog resetDialog;
+    private FloatingActionButton btnRefresh,btnBack;
+    private TextView firstName,lastName,phone,email,tvUsername;
+    private ImageView userProfileImage,editPass,editFname,editLname,editPhone;
+    Button confirm,cancel;
+    TextView userEmail;
     // Camera Handling
     private EditItemImage mEditItemImage;
     // Broadcast Receiver
@@ -72,9 +74,9 @@ public class ProfileActivity extends AppCompatActivity {
 
     Bitmap imageBitmap;
     // User Info related
-    String imageURL;
+    private String imageURL;
     String userName,userRole;
-    Users u;
+    private Users u;
     DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
     StorageReference mStorage = FirebaseStorage.getInstance().getReference();
     @Override
@@ -90,10 +92,145 @@ public class ProfileActivity extends AppCompatActivity {
 
 
         // Variables
-        mEditItemImage = new EditItemImage(ProfileActivity.this);
-        tvUsername = findViewById(R.id.tvUsr);
+        getIntentData();
+        initUiViews();
+        // function
+        pullUserData();
+        // Listeners
+        initListeners();
+    }
+
+    private void getIntentData() {
         userName = getIntent().getStringExtra("username");
         userRole = getIntent().getStringExtra("userRole");
+    }
+
+    private void initListeners() {
+        btnBack.setOnClickListener(v -> finish());
+        btnRefresh.setOnClickListener(v -> refreshPage());
+        editFname.setOnClickListener(v -> {
+            changeFname();
+        });
+        editLname.setOnClickListener(v -> {
+            changeLname();
+
+        });
+        editPhone.setOnClickListener(v -> {
+            changePhone();
+
+        });
+        editPass.setOnClickListener(v -> {
+
+            InitResetPassword();
+
+        });
+        userProfileImage.setOnClickListener(v -> mEditItemImage.openDialog());
+    }
+
+    private void InitResetPassword() {
+
+
+        resetDialog = new Dialog(ProfileActivity.this);
+        resetDialog.setContentView(R.layout.reset_password_dialog);
+        resetDialog.setTitle("Reset Password");
+        initResetDialogViews();
+        initResetDialogData();
+        resetPassword();
+        resetDialog.show();
+    }
+
+    private void resetPassword() {
+        confirm.setOnClickListener(v1 ->
+                FirebaseAuth.getInstance().sendPasswordResetEmail(email.getText().toString())
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                // Log.d("TAG", "Email Sent.");
+                                Toast.makeText(ProfileActivity.this, R.string.psd_link_sent,Toast.LENGTH_SHORT).show();
+                            }else{
+                                Toast.makeText(ProfileActivity.this, R.string.cant_send_email,Toast.LENGTH_SHORT).show();
+                            }
+                        }));
+        cancel.setOnClickListener(v12 -> resetDialog.dismiss());
+    }
+
+    private void initResetDialogData() {
+        userEmail.setText(email.getText().toString());
+    }
+
+    private void initResetDialogViews() {
+        confirm = resetDialog.findViewById(R.id.btnConfirm);
+        cancel = resetDialog.findViewById(R.id.btnCancel);
+        userEmail = resetDialog.findViewById(R.id.userEmailtoSend);
+    }
+
+    private void changePhone() {
+        final AlertDialog.Builder alert = new AlertDialog.Builder(ProfileActivity.this);
+        final EditText edittext = new EditText(ProfileActivity.this);
+        edittext.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
+        alert.setTitle("Enter your phone:");
+        edittext.setText(phone.getText().toString());
+        alert.setIcon(R.drawable.ic_edit_black);
+        alert.setView(edittext);
+
+        alert.setPositiveButton("Submit", (dialog, whichButton) -> {
+            String number =edittext.getText().toString();
+            ref.child("Users").child(userName).child("Phone").setValue(number);
+        });
+        alert.setNegativeButton("Cancel", (dialog, whichButton) -> {
+
+        });
+
+        alert.show();
+    }
+
+    private void changeLname() {
+        final AlertDialog.Builder alert = new AlertDialog.Builder(ProfileActivity.this);
+        final EditText edittext = new EditText(ProfileActivity.this);
+        alert.setTitle("Enter your last name:");
+        alert.setIcon(R.drawable.ic_edit_black);
+        edittext.setText(lastName.getText().toString());
+        alert.setView(edittext);
+        alert.setPositiveButton("Submit", (dialog, whichButton) -> {
+            String lName = edittext.getText().toString();
+            if(!namePattern.matcher(lName).matches())
+                Toast.makeText(ProfileActivity.this, "Must contain only letters!", Toast.LENGTH_SHORT).show();
+            else {
+
+                ref.child("Users").child(userName).child("Lname").setValue(lName);
+            }
+        });
+        alert.setNegativeButton("Cancel", (dialog, whichButton) -> {
+
+        });
+        alert.show();
+    }
+
+    private void changeFname() {
+        final AlertDialog.Builder alert = new AlertDialog.Builder(ProfileActivity.this);
+        final EditText edittext = new EditText(ProfileActivity.this);
+        alert.setTitle("Enter your first name:");
+        alert.setIcon(R.drawable.ic_edit_black);
+        edittext.setText(firstName.getText().toString());
+        alert.setView(edittext);
+        alert.setPositiveButton(R.string.submit, (dialog, whichButton) -> {
+            String fName = edittext.getText().toString();
+            if(!namePattern.matcher(fName).matches())
+                Toast.makeText(ProfileActivity.this, "Must contain only letters!", Toast.LENGTH_SHORT).show();
+            else {
+
+                ref.child("Users").child(userName).child("Fname").setValue(fName);
+
+            }
+        });
+        alert.setNegativeButton(R.string.cancel, (dialog, whichButton) -> {
+
+        });
+        alert.show();
+    }
+
+    private void initUiViews() {
+        mEditItemImage = new EditItemImage(ProfileActivity.this);
+        tvUsername = findViewById(R.id.tvUsr);
         firstName = findViewById(R.id.tvFirstName);
         lastName = findViewById(R.id.tvLastName);
         phone = findViewById(R.id.tvUsrPhone);
@@ -111,99 +248,6 @@ public class ProfileActivity extends AppCompatActivity {
 
         // progress dialog
         progressDialog = new ProgressDialog(ProfileActivity.this);
-        // function
-        pullUserData();
-        // Listeners
-        btnBack.setOnClickListener(v -> finish());
-        btnRefresh.setOnClickListener(v -> refreshPage());
-        editFname.setOnClickListener(v -> {
-            final AlertDialog.Builder alert = new AlertDialog.Builder(ProfileActivity.this);
-            final EditText edittext = new EditText(ProfileActivity.this);
-            alert.setTitle("Enter your first name:");
-            alert.setIcon(R.drawable.ic_edit_black);
-            edittext.setText(firstName.getText().toString());
-            alert.setView(edittext);
-            alert.setPositiveButton(R.string.submit, (dialog, whichButton) -> {
-                String fName = edittext.getText().toString();
-                if(!namePattern.matcher(fName).matches())
-                    Toast.makeText(ProfileActivity.this, "Must contain only letters!", Toast.LENGTH_SHORT).show();
-                else {
-
-                    ref.child("Users").child(userName).child("Fname").setValue(fName);
-
-                }
-            });
-            alert.setNegativeButton(R.string.cancel, (dialog, whichButton) -> {
-
-            });
-            alert.show();
-        });
-        editLname.setOnClickListener(v -> {
-            final AlertDialog.Builder alert = new AlertDialog.Builder(ProfileActivity.this);
-            final EditText edittext = new EditText(ProfileActivity.this);
-            alert.setTitle("Enter your last name:");
-            alert.setIcon(R.drawable.ic_edit_black);
-            edittext.setText(lastName.getText().toString());
-            alert.setView(edittext);
-            alert.setPositiveButton("Submit", (dialog, whichButton) -> {
-                String lName = edittext.getText().toString();
-                if(!namePattern.matcher(lName).matches())
-                    Toast.makeText(ProfileActivity.this, "Must contain only letters!", Toast.LENGTH_SHORT).show();
-                 else {
-
-                    ref.child("Users").child(userName).child("Lname").setValue(lName);
-                }
-            });
-            alert.setNegativeButton("Cancel", (dialog, whichButton) -> {
-
-            });
-            alert.show();
-        });
-        editPhone.setOnClickListener(v -> {
-            final AlertDialog.Builder alert = new AlertDialog.Builder(ProfileActivity.this);
-            final EditText edittext = new EditText(ProfileActivity.this);
-            edittext.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
-            alert.setTitle("Enter your phone:");
-            edittext.setText(phone.getText().toString());
-            alert.setIcon(R.drawable.ic_edit_black);
-            alert.setView(edittext);
-
-            alert.setPositiveButton("Submit", (dialog, whichButton) -> {
-                String number =edittext.getText().toString();
-                ref.child("Users").child(userName).child("Phone").setValue(number);
-                });
-            alert.setNegativeButton("Cancel", (dialog, whichButton) -> {
-
-            });
-
-            alert.show();
-        });
-        editPass.setOnClickListener(v -> {
-            Button confirm,cancel;
-            TextView userEmail;
-
-            myDialog = new Dialog(ProfileActivity.this);
-            myDialog.setContentView(R.layout.reset_password_dialog);
-            myDialog.setTitle("Reset Password");
-            confirm = myDialog.findViewById(R.id.btnConfirm);
-            cancel = myDialog.findViewById(R.id.btnCancel);
-            userEmail = myDialog.findViewById(R.id.userEmailtoSend);
-            userEmail.setText(email.getText().toString());
-
-
-            confirm.setOnClickListener(v1 -> FirebaseAuth.getInstance().sendPasswordResetEmail(email.getText().toString())
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                           // Log.d("TAG", "Email Sent.");
-                            Toast.makeText(ProfileActivity.this, R.string.psd_link_sent,Toast.LENGTH_SHORT).show();
-                        }else{
-                            Toast.makeText(ProfileActivity.this, R.string.cant_send_email,Toast.LENGTH_SHORT).show();
-                        }
-                    }));
-         cancel.setOnClickListener(v12 -> myDialog.dismiss());
-         myDialog.show();
-        });
-        userProfileImage.setOnClickListener(v -> mEditItemImage.openDialog());
     }
 
     private void pullUserData() {
