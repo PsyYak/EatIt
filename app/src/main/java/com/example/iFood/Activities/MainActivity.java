@@ -109,9 +109,9 @@ public class MainActivity extends AppCompatActivity {
                                     Gson gson = new Gson();
                                     String json = gson.toJson(favList);
                                     SharedPreferences.Editor editor = sharedPreferences.edit();
-                                    editor.putString("Set",json);
+                                    editor.putString("recipeID",json);
                                     editor.apply();
-                                    editor.commit();
+
 
 
                                 }
@@ -134,14 +134,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void checkFavPref() {
         Gson gson = new Gson();
-        String json = sharedPreferences.getString("Set", "");
+        String json = sharedPreferences.getString("recipeID", "");
         if (json.isEmpty()) {
-            Toast.makeText(MainActivity.this, "There is something error", Toast.LENGTH_LONG).show();
+           // Toast.makeText(MainActivity.this, "There is something error", Toast.LENGTH_LONG).show();
         } else {
-            Type type = new TypeToken<List<String>>() {
+            Type type = new TypeToken<ArrayList<String>>() {
             }.getType();
 
-        List<String> arrPackageData = gson.fromJson(json, type);
+        ArrayList<String> arrPackageData = gson.fromJson(json, type);
+        if(arrPackageData!=null)
         for(String data:arrPackageData) {
             Log.w("TAG","ID:"+data);
         }
