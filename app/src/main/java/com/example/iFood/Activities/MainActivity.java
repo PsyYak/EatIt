@@ -136,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
         Gson gson = new Gson();
         String json = sharedPreferences.getString("recipeID", "");
         if (json.isEmpty()) {
+            Log.e("Error","Error in SP");
            // Toast.makeText(MainActivity.this, "There is something error", Toast.LENGTH_LONG).show();
         } else {
             Type type = new TypeToken<ArrayList<String>>() {

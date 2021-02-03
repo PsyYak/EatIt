@@ -127,6 +127,8 @@ public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.My
 
         myHolder.shareImg.setOnClickListener(v -> {
 
+
+
             new Thread(() -> {
 
                 Intent shareRecipe = new Intent(Intent.ACTION_SEND);
@@ -222,9 +224,6 @@ public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.My
                     Toast.makeText(((Activity) mContext), "Recipe removed from favorites!", Toast.LENGTH_SHORT).show();
 
                 }
-                //isExists=false;
-                //notifyItemChanged(index);
-
             }
 
 

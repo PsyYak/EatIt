@@ -92,18 +92,8 @@ public class RecipeActivity extends AppCompatActivity {
         mRecipe.resetState(true);
 
         initListeners();
-        // Listeners
-        mRecipeIngredients.setOnClickListener(v -> mRecipeIngredients.animate());
-        mRecipe.setOnClickListener(v -> mRecipe.animate());
 
-        btnMsg.setOnClickListener(v -> {
-            Intent newMsg = new Intent(RecipeActivity.this, SendMessage.class);
-            newMsg.putExtra("username",userName);
-            newMsg.putExtra("activity",activity);
-            newMsg.putExtra("To User",addedBy);
-            newMsg.putExtra("msgTitle",Title);
-            startActivity(newMsg);
-        });
+
 
 
         handleButtons();
@@ -123,6 +113,18 @@ public class RecipeActivity extends AppCompatActivity {
 
 
         btnShare.setOnClickListener(v -> new Thread(this::shareRecipeContent).start());
+
+        mRecipeIngredients.setOnClickListener(v -> mRecipeIngredients.animate());
+        mRecipe.setOnClickListener(v -> mRecipe.animate());
+
+        btnMsg.setOnClickListener(v -> {
+            Intent newMsg = new Intent(RecipeActivity.this, SendMessage.class);
+            newMsg.putExtra("username",userName);
+            newMsg.putExtra("activity",activity);
+            newMsg.putExtra("To User",addedBy);
+            newMsg.putExtra("msgTitle",Title);
+            startActivity(newMsg);
+        });
     }
 
 

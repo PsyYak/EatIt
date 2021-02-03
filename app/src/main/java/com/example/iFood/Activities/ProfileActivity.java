@@ -457,27 +457,30 @@ public class ProfileActivity extends AppCompatActivity {
      */
     private void updatePhoto() {
 
-        new Thread(() -> {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-            final byte[] data = baos.toByteArray();
-            final UploadTask uploadTask = mStorage.child("Users_Profiles").child(userName).putBytes(data);
-            uploadTask.addOnFailureListener(e -> {
-                progressDialog.dismiss();
-                Toast.makeText(ProfileActivity.this,"Photo upload failed, please try again.",Toast.LENGTH_SHORT).show();
-            }).addOnSuccessListener(taskSnapshot -> {
-                if (taskSnapshot.getMetadata() != null) {
-                    if (taskSnapshot.getMetadata().getReference() != null) {
-                        Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
-                        result.addOnSuccessListener(uri -> {
-                            imageURL = uri.toString();
-                            ref.child("Users").child(userName).child("pic_url").setValue(imageURL);
-                            progressDialog.dismiss();
-                        });
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                final byte[] data = baos.toByteArray();
+                final UploadTask uploadTask = mStorage.child("Users_Profiles").child(userName).putBytes(data);
+                uploadTask.addOnFailureListener(e -> {
+                    progressDialog.dismiss();
+                    Toast.makeText(ProfileActivity.this,"Photo upload failed, please try again.",Toast.LENGTH_SHORT).show();
+                }).addOnSuccessListener(taskSnapshot -> {
+                    if (taskSnapshot.getMetadata() != null) {
+                        if (taskSnapshot.getMetadata().getReference() != null) {
+                            Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
+                            result.addOnSuccessListener(uri -> {
+                                imageURL = uri.toString();
+                                ref.child("Users").child(userName).child("pic_url").setValue(imageURL);
+                                progressDialog.dismiss();
+                            });
+                        }
                     }
-                }
-            });
-        }).start();
+                });
+            }
+        });
 
     }
     /**

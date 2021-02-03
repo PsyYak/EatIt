@@ -42,10 +42,10 @@ import static android.content.Context.MODE_PRIVATE;
  */
 public class NavDrawFragment extends BottomSheetDialogFragment {
 
-    DatabaseReference messagesRef = FirebaseDatabase.getInstance().getReference().child("Messages");
+    //DatabaseReference messagesRef = FirebaseDatabase.getInstance().getReference().child("Messages");
     String username,userRole;
     SharedPreferences pref;
-    int count=0;
+   // int count=0;
     private Context mContext;
 
     public NavDrawFragment() {

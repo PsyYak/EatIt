@@ -75,27 +75,23 @@ public class EditRecipeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_recipe);
 
         // Set Variables
-        setVars();
+        initUiViews();
 
         // pull information from Intent
-        recipeImageURL = getIntent().getStringExtra("Thumbnail");
-        recipeID = getIntent().getStringExtra("recipeID");
-        userName = getIntent().getStringExtra("userName");
-        userRole = getIntent().getStringExtra("userRole");
-        recipe_Type = getIntent().getStringExtra("recipeType");
-        recipe_Feature = getIntent().getStringExtra("recipeFeature");
-        etTitle.setText(getIntent().getStringExtra("RecipeName"));
-        etIngredients.setText(getIntent().getStringExtra("RecipeIngredients"));
-        etContent.setText(getIntent().getStringExtra("Recipe"));
-        tvRecipe_type.setText(recipe_Type);
-        tvRecipe_features.setText(recipe_Feature);
+        initIntentData();
 
         // set the image into the Image view
         progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.setMessage("Loading..");
         progressDialog.show();
-        Picasso.get().load(recipeImageURL).into(ivRecipeImage);
-        progressDialog.dismiss();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Picasso.get().load(recipeImageURL).into(ivRecipeImage);
+                progressDialog.dismiss();
+            }
+        });
+
       //  Log.w("TAG","recipeID:"+recipeID+", username:"+userName);
 
         btnSave.setOnClickListener(v -> {
@@ -236,7 +232,21 @@ public class EditRecipeActivity extends AppCompatActivity {
         });
     } // onCreate ends
 
-    private void setVars() {
+    private void initIntentData() {
+        recipeImageURL = getIntent().getStringExtra("Thumbnail");
+        recipeID = getIntent().getStringExtra("recipeID");
+        userName = getIntent().getStringExtra("userName");
+        userRole = getIntent().getStringExtra("userRole");
+        recipe_Type = getIntent().getStringExtra("recipeType");
+        recipe_Feature = getIntent().getStringExtra("recipeFeature");
+        etTitle.setText(getIntent().getStringExtra("RecipeName"));
+        etIngredients.setText(getIntent().getStringExtra("RecipeIngredients"));
+        etContent.setText(getIntent().getStringExtra("Recipe"));
+        tvRecipe_type.setText(recipe_Type);
+        tvRecipe_features.setText(recipe_Feature);
+    }
+
+    private void initUiViews() {
         tvRecipe_features = findViewById(R.id.edit_recipeFeatureSelection);
         tvRecipe_type = findViewById(R.id.edit_recipeType);
         progressDialog = new ProgressDialog(EditRecipeActivity.this);
