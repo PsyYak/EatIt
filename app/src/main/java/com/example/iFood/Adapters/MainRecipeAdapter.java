@@ -4,6 +4,7 @@ package com.example.iFood.Adapters;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -15,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.os.Handler;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -32,16 +32,22 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static android.content.Context.MODE_PRIVATE;
 
 
 /**
@@ -50,7 +56,7 @@ import java.util.Objects;
  * and allow the user to move to Recipe Activity to view all the information regarding the recipe.
  */
 public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.MyHolder> {
-
+    SharedPreferences sharedPreferences;
     private String userName,userRole,check;
     private Bitmap image;
     private Uri imageToSend;
@@ -110,7 +116,7 @@ public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.My
             mContext.startActivity(intent1);
         });
 
-        myHolder.card_msg.setOnClickListener(v -> {
+        myHolder.msgImg.setOnClickListener(v -> {
             Intent newMsg = new Intent(((Activity) mContext), SendMessage.class);
             newMsg.putExtra("username",userName);
             newMsg.putExtra("activity",activity);
@@ -119,7 +125,9 @@ public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.My
             mContext.startActivity(newMsg);
         });
 
-        myHolder.card_share.setOnClickListener(v -> {
+        myHolder.shareImg.setOnClickListener(v -> {
+
+
 
             new Thread(() -> {
 
@@ -154,16 +162,24 @@ public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.My
             }).start();
 
         });
-
-        myHolder.card_like.setOnClickListener(v -> {
-            addFav(userName,mData.get(i));
-
-            int color = myHolder.card_like.getCurrentTextColor();
-            if(color == Color.RED){
-                myHolder.card_like.setTextColor(Color.GRAY);
+        sharedPreferences = mContext.getSharedPreferences("favRecipes",MODE_PRIVATE);
+        if(checkFavPref(mData.get(i).getId())){
+            myHolder.likeImg.setColorFilter(Color.RED);
+        }else{
+            myHolder.likeImg.setColorFilter(Color.GRAY);
+        }
+        myHolder.likeImg.setOnClickListener(v -> {
+            Log.w("TAG","likeImg clicked");
+            addFav(userName,mData.get(i),i);
+            if(!checkFavPref(mData.get(i).getId())){
+                myHolder.likeImg.setColorFilter(Color.RED);
+               // notifyItemChanged(myHolder.getAdapterPosition());
             }else{
-                myHolder.card_like.setTextColor(Color.RED);
+                myHolder.likeImg.setColorFilter(Color.GRAY);
+                //notifyItemChanged(i);
             }
+
+
         });
     }
 
@@ -171,35 +187,43 @@ public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.My
     public int getItemCount() {
         return mData.size();
     }
-    private void addFav(String userName,Recipes recipe){
-
+    private void addFav(String userName,Recipes recipe,int index){
+        isExists = false;
+        Log.w("addFav","addFav called");
         DatabaseReference Fav_ref = FirebaseDatabase.getInstance().getReference().child("Favorites");
         Fav_ref.child(userName).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for(DataSnapshot dst : dataSnapshot.getChildren()) {
+                    Log.w("addFav","addFav2");
                     //   Log.w("TAG", "key(dst):" + dst.getKey());
                     if (Objects.equals(dst.getKey(), recipe.getId())) {
+                        Log.w("addFav","addFav3");
                         // remove from fav list - clicked on like the second time
-                        Fav_ref.child(userName).child(recipe.getId()).removeValue();
                         isExists = true;
-                         //Log.w("TAG", "isExists:" + isExists);
-                        Toast.makeText(((Activity) mContext), "Recipe removed from favorites.", Toast.LENGTH_SHORT).show();
+                         Log.w("TAG", "isExists:" + isExists);
                         break;
                     }
 
 
+
                 }
-                //Log.w("TAG","isExists3:"+isExists);
+             Log.w("TAG","isExists2:"+isExists);
                 if(!isExists){
+                    Log.w("addFav","addFav4");
                     // didn't found the ID meaning not in the list so adding to user fav list
                     //Log.w("TAG","Going to add to fav!");
                     Fav_ref.child(userName).child(recipe.getId()).setValue(recipe);
-
+                    addToList(recipe.getId());
                     Toast.makeText(((Activity) mContext),"Added to favorites!",Toast.LENGTH_SHORT).show();
 
-                }
+                }else{
+                    Log.w("addFav","addFav5");
+                    Fav_ref.child(userName).child(recipe.getId()).removeValue();
+                    removeFromList(recipe.getId());
+                    Toast.makeText(((Activity) mContext), "Recipe removed from favorites!", Toast.LENGTH_SHORT).show();
 
+                }
             }
 
 
@@ -238,11 +262,89 @@ public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.My
         return bmpUri;
     }
 
+    private boolean checkFavPref(String id) {
+        try{
+            Gson gson = new Gson();
+            String json = sharedPreferences.getString("recipeID", "");
+            if (json.isEmpty()) {
+                Log.e("Error", "Error");
+                return false;
+            } else {
+                Type type = new TypeToken<ArrayList<String>>() {
+                }.getType();
+
+                ArrayList<String> arrPackageData = gson.fromJson(json, type);
+                if(arrPackageData!=null){
+                    if(arrPackageData.contains(id)){
+                        return true;
+                    }
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    private void removeFromList(String id){
+        ArrayList<String> arrPackageData = new ArrayList<>();
+        Gson gson = new Gson();
+        String favJson = sharedPreferences.getString("recipeID","");
+        if (favJson.isEmpty()) {
+            Log.e("Error", "Error");
+
+        } else {
+            Type type = new TypeToken<ArrayList<String>>(){}.getType();
+           arrPackageData = gson.fromJson(favJson, type);
+            Log.w("removeFromList1","Data:"+arrPackageData);
+            if(arrPackageData!=null && arrPackageData.size()>0)
+                arrPackageData.remove(id);
+
+        }
+        Log.w("removeFromList2","Data:"+arrPackageData);
+        if(arrPackageData!=null) {
+            String newJson = gson.toJson(arrPackageData);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("recipeID", newJson);
+            editor.apply();
+            editor.commit();
+        }
+
+    }
+    private void addToList(String id){
+        ArrayList<String> arrPackageData = new ArrayList<>();
+        Gson gson = new Gson();
+        String favJson = sharedPreferences.getString("recipeID","");
+        if (favJson.isEmpty()) {
+            Log.e("Error", "Error");
+
+        } else {
+            Type type = new TypeToken<ArrayList<String>>(){}.getType();
+            arrPackageData = gson.fromJson(favJson, type);
+            Log.w("addToList1","Data:"+arrPackageData);
+            if(arrPackageData!=null)
+               arrPackageData.add(id);
+        }
+        Log.w("addToList2","Data:"+arrPackageData);
+        if(arrPackageData!=null) {
+            String newJson = gson.toJson(arrPackageData);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("recipeID", newJson);
+            editor.apply();
+            editor.commit();
+
+        }
+
+    }
+
+
     public static class MyHolder extends RecyclerView.ViewHolder {
 
         TextView recipeTitle,card_like,card_share,card_msg;
         CardView cardView;
-        ImageView img_recipe;
+        ImageView img_recipe,likeImg,msgImg,shareImg;
+
 
         public MyHolder(@NonNull View itemView) {
             super(itemView);
@@ -251,9 +353,12 @@ public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.My
             img_recipe = itemView.findViewById(R.id.recipe_img_id);
             cardView = itemView.findViewById(R.id.cardview_id);
 
-            card_like = itemView.findViewById(R.id.card_like);
-            card_msg = itemView.findViewById(R.id.card_msg);
-            card_share = itemView.findViewById(R.id.card_share);
+            likeImg = itemView.findViewById(R.id.likeImg);
+            msgImg = itemView.findViewById(R.id.msgImg);
+            shareImg = itemView.findViewById(R.id.shareImg);
+          //  card_like = itemView.findViewById(R.id.card_like);
+          //  card_msg = itemView.findViewById(R.id.card_msg);
+          //  card_share = itemView.findViewById(R.id.card_share);
 
 
 

@@ -59,16 +59,21 @@ public class MyRecipes extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_recipes);
-        myrecyclerView = findViewById(R.id.MyRecipes_recycler_view);
 
-        bottomAppBar = findViewById(R.id.bottomAppBar);
-        addIcon = findViewById(R.id.bottomAddIcon);
-
-        userRole = getIntent().getStringExtra("userRole");
-        userName = getIntent().getStringExtra("username");
         if(getSupportActionBar() != null){
             getSupportActionBar().hide();
         }
+
+        initUiViews();
+        initIntentData();
+        initNav();
+
+         getList();
+
+
+    } // onCreate Ends
+
+    private void initNav() {
 
         bottomAppBar.setNavigationOnClickListener(v -> {
             NavDrawFragment bottomNavFrag = new NavDrawFragment();
@@ -98,13 +103,21 @@ public class MyRecipes extends AppCompatActivity {
             addIcon.show(getSupportFragmentManager(),"addIconNav");
         });
 
+    }
+
+    private void initIntentData() {
+        userRole = getIntent().getStringExtra("userRole");
+        userName = getIntent().getStringExtra("username");
+
+    }
+
+    private void initUiViews() {
+        myrecyclerView = findViewById(R.id.MyRecipes_recycler_view);
         totalCount = findViewById(R.id.tvMyRecipesCount);
         notApprovedCount = findViewById(R.id.tvNotApprovedCount);
-
-         getList();
-
-
-    } // onCreate Ends
+        bottomAppBar = findViewById(R.id.bottomAppBar);
+        addIcon = findViewById(R.id.bottomAddIcon);
+    }
 
     /**
      * This function called every time user wants to looks for his recipes

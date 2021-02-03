@@ -57,8 +57,8 @@ public class ModActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mod);
-        modList = findViewById(R.id.modList);
 
+        modList = findViewById(R.id.modList);
         bottomAppBar = findViewById(R.id.bottomAppBar);
         addIcon = findViewById(R.id.bottomAddIcon);
 

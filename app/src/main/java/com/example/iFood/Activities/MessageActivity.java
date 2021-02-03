@@ -29,22 +29,13 @@ public class MessageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
         /////// Get data from previous activity
-        activity = getIntent().getStringExtra("activity");
-        userName = getIntent().getStringExtra("username");
-        userRole = getIntent().getStringExtra("userRole");
-        frmUser = getIntent().getStringExtra("From User");
-        dateMsg = getIntent().getStringExtra("Message Date");
-        contentMsg = getIntent().getStringExtra("Message Content");
-        titleMsg= getIntent().getStringExtra("Message Title");
-        msgID = getIntent().getStringExtra("msgID");
+
 
         ///////
-        fromUser = findViewById(R.id.tvFrom);
-        msgTitle = findViewById(R.id.tvMessageTitle);
-        msgContent = findViewById(R.id.tvMessageContent);
-        msgDate = findViewById(R.id.tvMessageDate);
-        btnClose = findViewById(R.id.btnCloseMessage);
-        btnReplay = findViewById(R.id.btnReplayMessage);
+        initUiViews();
+        initIntentData();
+        initUiData();
+
 
         btnReplay.setOnClickListener(v -> {
             Intent sendMsg = new Intent(MessageActivity.this, SendMessage.class);
@@ -58,12 +49,36 @@ public class MessageActivity extends AppCompatActivity {
             finish();
         });
         btnClose.setOnClickListener(v -> finish());
+
+
+    } // onCreate ends
+
+    private void initUiData() {
         fromUser.setText(frmUser);
         msgContent.setText(contentMsg);
         msgDate.setText(dateMsg);
         msgTitle.setText(titleMsg);
+    }
 
-    } // onCreate ends
+    private void initIntentData() {
+        activity = getIntent().getStringExtra("activity");
+        userName = getIntent().getStringExtra("username");
+        userRole = getIntent().getStringExtra("userRole");
+        frmUser = getIntent().getStringExtra("From User");
+        dateMsg = getIntent().getStringExtra("Message Date");
+        contentMsg = getIntent().getStringExtra("Message Content");
+        titleMsg= getIntent().getStringExtra("Message Title");
+        msgID = getIntent().getStringExtra("msgID");
+    }
+
+    private void initUiViews() {
+        fromUser = findViewById(R.id.tvFrom);
+        msgTitle = findViewById(R.id.tvMessageTitle);
+        msgContent = findViewById(R.id.tvMessageContent);
+        msgDate = findViewById(R.id.tvMessageDate);
+        btnClose = findViewById(R.id.btnCloseMessage);
+        btnReplay = findViewById(R.id.btnReplayMessage);
+    }
 
     /**
      * Register our Broadcast Receiver when opening the app.

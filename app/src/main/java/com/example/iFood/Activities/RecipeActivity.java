@@ -92,18 +92,8 @@ public class RecipeActivity extends AppCompatActivity {
         mRecipe.resetState(true);
 
         initListeners();
-        // Listeners
-        mRecipeIngredients.setOnClickListener(v -> mRecipeIngredients.animate());
-        mRecipe.setOnClickListener(v -> mRecipe.animate());
 
-        btnMsg.setOnClickListener(v -> {
-            Intent newMsg = new Intent(RecipeActivity.this, SendMessage.class);
-            newMsg.putExtra("username",userName);
-            newMsg.putExtra("activity",activity);
-            newMsg.putExtra("To User",addedBy);
-            newMsg.putExtra("msgTitle",Title);
-            startActivity(newMsg);
-        });
+
 
 
         handleButtons();
@@ -123,6 +113,18 @@ public class RecipeActivity extends AppCompatActivity {
 
 
         btnShare.setOnClickListener(v -> new Thread(this::shareRecipeContent).start());
+
+        mRecipeIngredients.setOnClickListener(v -> mRecipeIngredients.animate());
+        mRecipe.setOnClickListener(v -> mRecipe.animate());
+
+        btnMsg.setOnClickListener(v -> {
+            Intent newMsg = new Intent(RecipeActivity.this, SendMessage.class);
+            newMsg.putExtra("username",userName);
+            newMsg.putExtra("activity",activity);
+            newMsg.putExtra("To User",addedBy);
+            newMsg.putExtra("msgTitle",Title);
+            startActivity(newMsg);
+        });
     }
 
 
@@ -385,7 +387,7 @@ public class RecipeActivity extends AppCompatActivity {
                              ref.child(userName).child(recipeID).removeValue();
                              isExists = true;
                             // Log.w("TAG", "isExists2:" + isExists);
-                             Toast.makeText(RecipeActivity.this, "Recipe removed from favorites.", Toast.LENGTH_SHORT).show();
+                             Toast.makeText(RecipeActivity.this, "Recipe removed from favorites..", Toast.LENGTH_SHORT).show();
                              break;
                          }
 
@@ -397,7 +399,7 @@ public class RecipeActivity extends AppCompatActivity {
                  Recipes r;
                  r= new Recipes(Title,Ingredients,MethodTitle,Recipe,recipeImage,recipeID,addedBy,recipe_Type,recipeFeature);
                  ref.child(userName).child(recipeID).setValue(r);
-                 Toast.makeText(RecipeActivity.this,"Added to favorites!",Toast.LENGTH_SHORT).show();
+                 Toast.makeText(RecipeActivity.this,"Added to favorites..",Toast.LENGTH_SHORT).show();
 
              }
          }

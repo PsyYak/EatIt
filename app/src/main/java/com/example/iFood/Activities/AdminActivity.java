@@ -365,6 +365,13 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
         chartTopMod.setPieChartData(topModPieChart);
         chartRejectReasons.setPieChartData(rejectReasonPieChart);
 
+
+        resetCount();
+
+
+    }
+
+    private void resetCount() {
         spam=0;
         missingIngredients=0;
         missingInfo=0;
@@ -372,7 +379,6 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
         badPicture=0;
         badTitle=0;
         other=0;
-
     }
 
     /**
@@ -417,9 +423,9 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
      */
     @Override
     public void onClick(View v) {
-
+        final Calendar c = Calendar.getInstance();
         if (v == toDate) {
-            final Calendar c = Calendar.getInstance();
+
             mYear = c.get(Calendar.YEAR);
             mMonth = c.get(Calendar.MONTH);
             mDay = c.get(Calendar.DAY_OF_MONTH);
@@ -442,7 +448,7 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
             datePickerDialog.show();
         }
         if(v == fromDate){
-            final Calendar c = Calendar.getInstance();
+
             mYear = c.get(Calendar.YEAR);
             mMonth = c.get(Calendar.MONTH);
             mDay = c.get(Calendar.DAY_OF_MONTH);
@@ -489,6 +495,9 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
                 btnOk.setOnClickListener(v -> {
 
                     SharedPreferences.Editor delData = getSharedPreferences("userData", MODE_PRIVATE).edit();
+                    delData.clear();
+                    delData.apply();
+                    delData = getSharedPreferences("favRecipes",MODE_PRIVATE).edit();
                     delData.clear();
                     delData.apply();
                     finishAffinity();
