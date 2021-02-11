@@ -22,15 +22,15 @@ public class Users {
 
     public Users(){}
     public Users(String username, String email, String phone, String fname, String lname,String Pic,String roleUser,String uID) {
-        Username = username;
-        Email = email;
-        Phone = phone;
-        Fname = fname;
-        Lname = lname;
-        pic_url = Pic;
-        userRole=roleUser;
+        this.Username = username;
+        this.Email = email;
+        this.Phone = phone;
+        this.Fname = fname;
+        this.Lname = lname;
+        this.pic_url = Pic;
+        this.userRole=roleUser;
         timestamp = ServerValue.TIMESTAMP;
-        uid = uID;
+        this.uid = uID;
 
     }
 

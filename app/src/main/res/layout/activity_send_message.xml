@@ -8,6 +8,7 @@
     android:background="@drawable/background3"
     tools:context=".Activities.MessageActivity">
     <LinearLayout
+
         android:background="@drawable/message_background"
         android:layout_margin="5dp"
         android:orientation="horizontal"
@@ -15,6 +16,7 @@
         android:layout_height="wrap_content">
 
         <TextView
+
             android:layout_margin="5dp"
             android:layout_width="wrap_content"
             android:layout_height="25dp"
@@ -71,6 +73,7 @@
         </TextView>
         <EditText
             android:maxLines="1"
+            android:layout_marginEnd="8dp"
             android:id="@+id/tvMessageTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -78,21 +81,23 @@
             android:inputType="text">
         </EditText>
 </LinearLayout>
+    <TextView
+        android:layout_marginStart="5dp"
+        android:layout_margin="5dp"
+        android:textStyle="bold"
+        android:text="@string/message_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </TextView>
 <LinearLayout
         android:background="@drawable/message_background"
         android:layout_margin="5dp"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="395dp">
-        <TextView
-            android:layout_margin="5dp"
-            android:textStyle="bold"
-            android:text="@string/message_content"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
 
-        </TextView>
         <EditText
+            android:layout_marginEnd="8dp"
             android:focusable="true"
             android:scrollbars="vertical"
             android:gravity="start"

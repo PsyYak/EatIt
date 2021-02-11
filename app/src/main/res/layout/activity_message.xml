@@ -75,13 +75,8 @@
 
         </TextView>
     </LinearLayout>
-    <LinearLayout
-        android:background="@drawable/message_background"
-        android:layout_margin="5dp"
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="395dp">
     <TextView
+
         android:layout_margin="5dp"
         android:textStyle="bold"
         android:text="@string/message_content"
@@ -89,6 +84,13 @@
         android:layout_height="wrap_content">
 
     </TextView>
+    <LinearLayout
+        android:background="@drawable/message_background"
+        android:layout_margin="5dp"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="395dp">
+
     <TextView
             android:minLines="25"
             android:gravity="start"
