@@ -126,6 +126,7 @@
 
 
         <Button
+            android:textStyle="italic"
             android:text="@string/save"
             android:id="@+id/btnSave"
             android:layout_width="wrap_content"

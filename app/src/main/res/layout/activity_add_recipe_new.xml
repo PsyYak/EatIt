@@ -60,6 +60,7 @@
         android:layout_height="wrap_content">
 
         <Button
+            android:textStyle="italic"
             style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/btnPrevious"
             android:text="@string/previous"
@@ -68,6 +69,7 @@
 
         </Button>
         <Button
+            android:textStyle="italic"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_marginStart="25dp"
             android:id="@+id/btnNext"
@@ -77,6 +79,7 @@
 
         </Button>
         <Button
+            android:textStyle="italic"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_marginStart="25dp"
             android:id="@+id/btnConfirm"

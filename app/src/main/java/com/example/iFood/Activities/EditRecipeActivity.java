@@ -54,20 +54,20 @@ import static com.example.iFood.Activities.Add_Recipe.addRecipe_New.recipeFeatur
 
 public class EditRecipeActivity extends AppCompatActivity {
     ConnectionBCR bcr = new ConnectionBCR();
-    EditText etTitle,etIngredients,etContent;
-    TextView tvRecipe_features,tvRecipe_type;
-    ImageView ivRecipeImage;
-    Button btnSave;
-    String recipeID,recipeImageURL,userName,userRole,recipeTitle,recipeIngredients,recipeInstructions,newValue,recipe_Type,recipe_Feature;
-    ProgressDialog progressDialog;
+    private EditText etTitle,etIngredients,etContent;
+    private TextView tvRecipe_features,tvRecipe_type;
+    private ImageView ivRecipeImage;
+    private Button btnSave;
+    private String recipeID,recipeImageURL,userName,userRole,recipeTitle,recipeIngredients,recipeInstructions,newValue,recipe_Type,recipe_Feature;
+    private ProgressDialog progressDialog;
     List<String> edit_featureList = new ArrayList<>();
     List<String> edit_TypeList = new ArrayList<>();
     // Camera Handling
     private EditItemImage mEditItemImage;
-    Bitmap imageBitmap;
+    private Bitmap imageBitmap;
 
-    FirebaseStorage mStorage = FirebaseStorage.getInstance();
-    DatabaseReference recipesRef = FirebaseDatabase.getInstance().getReference().child("Recipes");
+    private final FirebaseStorage mStorage = FirebaseStorage.getInstance();
+    private final DatabaseReference recipesRef = FirebaseDatabase.getInstance().getReference().child("Recipes");
     @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     protected void onCreate(Bundle savedInstanceState) {

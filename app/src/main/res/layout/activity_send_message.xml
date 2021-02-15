@@ -82,9 +82,10 @@
         </EditText>
 </LinearLayout>
     <TextView
+
         android:layout_marginStart="5dp"
-        android:layout_margin="5dp"
-        android:textStyle="bold"
+        android:layout_margin="8dp"
+        android:textStyle="bold|italic"
         android:text="@string/message_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -117,6 +118,7 @@
         android:layout_height="fill_parent">
 
         <Button
+            android:textStyle="italic"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_margin="5dp"
             android:id="@+id/btnReplayMessage"
@@ -126,6 +128,7 @@
 
         </Button>
         <Button
+            android:textStyle="italic"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_margin="5dp"
             android:id="@+id/btnCloseMessage"

@@ -19,6 +19,7 @@
         android:orientation="horizontal"
         android:layout_gravity="center">
         <Button
+            android:textStyle="italic"
             style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/btnOk"
             android:layout_margin="5dp"
@@ -26,6 +27,7 @@
             android:layout_height="wrap_content"
             android:text="@string/yes" />
         <Button
+            android:textStyle="italic"
             style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/btnDismiss"
             android:layout_margin="5dp"
