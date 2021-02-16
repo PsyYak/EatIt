@@ -281,7 +281,7 @@ public class ProfileActivity extends AppCompatActivity {
 
                         }
                     }
-
+                    progressDialog.dismiss();
                 }
 
                 @Override
@@ -291,7 +291,7 @@ public class ProfileActivity extends AppCompatActivity {
             });
         }, 2000);
 
-        progressDialog.dismiss();
+
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")

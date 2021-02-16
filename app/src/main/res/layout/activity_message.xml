@@ -7,12 +7,14 @@
     android:background="@drawable/background3"
     tools:context=".Activities.MessageActivity">
 <LinearLayout
+
     android:background="@drawable/message_background"
     android:layout_margin="5dp"
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
     <TextView
+        android:gravity="start|center"
         android:textStyle="bold"
         android:text="@string/from"
         android:layout_margin="5dp"
@@ -32,12 +34,14 @@
     </TextView>
 </LinearLayout>
     <LinearLayout
+
         android:background="@drawable/message_background"
         android:layout_margin="5dp"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <TextView
+            android:gravity="start|center"
             android:layout_margin="5dp"
             android:textStyle="bold"
             android:text="@string/message_title"
@@ -63,6 +67,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <TextView
+            android:gravity="start|center"
             android:layout_margin="5dp"
             android:textStyle="bold"
             android:text="@string/received_date"
@@ -90,21 +95,32 @@
         android:layout_height="wrap_content">
 
     </TextView>
+
+
     <LinearLayout
         android:background="@drawable/message_background"
         android:layout_margin="5dp"
         android:orientation="vertical"
+        android:isScrollContainer="true"
         android:layout_width="match_parent"
         android:layout_height="395dp">
+     <ScrollView
 
-    <TextView
-            android:minLines="25"
-            android:gravity="start"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:scrollbars = "vertical"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginStart="10dp"
+            android:fontFamily="serif"
             android:id="@+id/tvMessageContent"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
         </TextView>
+     </ScrollView>
     </LinearLayout>
 
     <LinearLayout

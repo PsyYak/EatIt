@@ -8,17 +8,17 @@ import com.google.firebase.database.ServerValue;
  * This class is the Recipes with all the needed information regarding the Recipe itself
  */
 public class Recipes {
-    private String id;
-    private String recipeName;
-    private String recipeIngredients;
-    private String recipeMethodTitle;
-    private String recipe;
-    private String recipePicture;
-    private String addedBy;
-    private String type;
-    private String feature;
-    private boolean approved;
-    private Object timestamp;
+    public String id;
+    public String recipeName;
+    public String recipeIngredients;
+    public String recipeMethodTitle;
+    public String recipe;
+    public String recipePicture;
+    public String addedBy;
+    public String type;
+    public String feature;
+    public boolean approved;
+    Object timestamp;
 
     Recipes(){}
 

@@ -47,6 +47,7 @@
 
     </TextView>
     <TextView
+        android:textStyle="italic|bold"
         android:layout_marginTop="10dp"
         android:hint="click to set"
         android:textSize="20sp"

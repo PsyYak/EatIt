@@ -22,6 +22,7 @@
         android:src="@drawable/ic_refresh"
         android:layout_gravity="center"
         app:maxImageSize="35dp"
+        tools:ignore="ContentDescription"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 

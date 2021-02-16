@@ -90,7 +90,8 @@
         app:fabAlignmentMode="end"
         app:hideOnScroll="true"
         app:menu="@menu/menu_bar"
-        app:navigationIcon="@drawable/ic_menu" />
+        app:navigationIcon="@drawable/ic_menu"
+        tools:ignore="ContentDescription"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/bottomAddIcon"
@@ -101,6 +102,7 @@
         app:layout_anchor="@id/bottomAppBar"
         app:maxImageSize="35dp"
         app:menu="@menu/menu_add"
-        app:tint="@color/colorWhite" />
+        app:tint="@color/colorWhite"
+        tools:ignore="ContentDescription"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

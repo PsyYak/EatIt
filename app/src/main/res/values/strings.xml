@@ -173,6 +173,9 @@
     <string name="edit_delete_view_my_recipes">Do you wish to Edit,View or Delete your Recipe?</string>
     <string name="recipe_feature">Recipe Features:</string>
     <string name="recipe_type">Recipe Type:</string>
+    <string name="recipe_features">Recipe Features:</string>
+
+    <string name="edit">Edit</string>
 
 
 </resources>

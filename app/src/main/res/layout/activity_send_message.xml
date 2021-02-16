@@ -98,6 +98,7 @@
         android:layout_height="395dp">
 
         <EditText
+
             android:layout_marginEnd="8dp"
             android:focusable="true"
             android:scrollbars="vertical"

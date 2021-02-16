@@ -33,7 +33,7 @@
             android:textStyle="italic"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Edit" />
+            android:text="@string/edit" />
         <Button
             style="?android:attr/buttonBarButtonStyle"
             android:layout_margin="5dp"

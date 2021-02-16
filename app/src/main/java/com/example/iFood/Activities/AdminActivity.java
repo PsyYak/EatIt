@@ -175,7 +175,7 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
                             Recipes rec = dsResult.getValue(Recipes.class);
                             assert rec != null;
 
-                            recipeTime = (Long) rec.timestamp;
+                            recipeTime = (Long) rec.getTimestamp();
                             //  @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new SimpleDateFormat(getString(R.string.date_format));
                             //String c = simpleDateFormat.format(recipeTime);
                             // Log.d("TAG"," recipe date: "+c);
