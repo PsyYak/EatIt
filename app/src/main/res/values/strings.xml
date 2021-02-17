@@ -107,7 +107,7 @@
     <string name="email">Email</string>
     <string name="take_picture">Take Picture</string>
     <string name="to">To:</string>
-    <string name="message_title_regarding_recipe">Message Title: Regarding recipe:</string>
+    <string name="message_title_regarding_recipe">Message Title: Regarding recipe </string>
     <string name="send">Send</string>
     <string name="opened_messages">Opened Messages:</string>
     <string name="unread_messages">Unread Messages:</string>
@@ -173,6 +173,9 @@
     <string name="edit_delete_view_my_recipes">Do you wish to Edit,View or Delete your Recipe?</string>
     <string name="recipe_feature">Recipe Features:</string>
     <string name="recipe_type">Recipe Type:</string>
+    <string name="recipe_features">Recipe Features:</string>
+
+    <string name="edit">Edit</string>
 
 
 </resources>

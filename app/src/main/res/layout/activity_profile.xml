@@ -81,6 +81,7 @@
                                 </TextView>
                             </LinearLayout>
                             <ImageView
+                                tools:ignore="ContentDescription"
                                 android:layout_marginTop="15dp"
                                 android:layout_alignParentEnd="true"
                                 android:src="@drawable/ic_account_circle_black"
@@ -118,6 +119,7 @@
                                 </TextView>
                             </LinearLayout>
                             <ImageView
+                                tools:ignore="ContentDescription"
                                 android:id="@+id/editFname"
                                 android:layout_marginTop="15dp"
                                 android:layout_alignParentEnd="true"
@@ -157,6 +159,7 @@
                                 </TextView>
                             </LinearLayout>
                             <ImageView
+                                tools:ignore="ContentDescription"
                                 android:id="@+id/editLname"
                                 android:layout_marginTop="15dp"
                                 android:layout_alignParentEnd="true"
@@ -196,6 +199,7 @@
                                 </TextView>
                             </LinearLayout>
                             <ImageView
+                                tools:ignore="ContentDescription"
                                 android:layout_marginTop="15dp"
                                 android:layout_alignParentEnd="true"
                                 android:src="@drawable/ic_lock_outline_black"
@@ -234,6 +238,7 @@
                                 </TextView>
                             </LinearLayout>
                             <ImageView
+                                tools:ignore="ContentDescription"
                                 android:id="@+id/editPhone"
                                 android:layout_marginTop="15dp"
                                 android:layout_alignParentEnd="true"
@@ -274,6 +279,7 @@
                                 </TextView>
                             </LinearLayout>
                             <ImageView
+                                tools:ignore="ContentDescription"
                                 android:id="@+id/editPass"
                                 android:layout_marginTop="15dp"
                                 android:layout_alignParentEnd="true"
@@ -299,7 +305,8 @@
                         android:src="@drawable/ic_refresh"
                         android:layout_width="wrap_content"
                         android:baselineAligned="true"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        tools:ignore="ContentDescription">
 
                     </com.google.android.material.floatingactionbutton.FloatingActionButton>
 
@@ -317,7 +324,8 @@
             android:src="@drawable/ic_arrow_back_black"
             android:layout_width="wrap_content"
             android:baselineAligned="true"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            tools:ignore="ContentDescription">
 
         </com.google.android.material.floatingactionbutton.FloatingActionButton>
     </RelativeLayout>

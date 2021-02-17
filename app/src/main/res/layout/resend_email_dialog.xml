@@ -10,7 +10,7 @@
         android:layout_marginTop="10dp"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
-        android:text="We didn't find any user registered with this phone, please enter your credentials address to send the
+        android:text="We didn't find any user registered on this phone, please enter your email address to send the
                       Verification Email."
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -26,7 +26,7 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:gravity="center"
+            android:gravity="start|center"
             android:text= "@string/email"
             android:ems="4"
             android:layout_width="wrap_content"
@@ -51,7 +51,7 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:gravity="center"
+            android:gravity="start|center"
             android:text="@string/password"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
@@ -75,6 +75,7 @@
         android:layout_height="wrap_content">
     <Button
         android:text="@string/confirm"
+        android:textStyle="italic"
         android:id="@+id/input_ok"
         android:layout_marginEnd="5dp"
         android:layout_width="wrap_content"
@@ -83,6 +84,7 @@
     </Button>
         <Button
             android:text="@string/cancel"
+            android:textStyle="italic"
             android:id="@+id/input_cancel"
             android:layout_marginStart="5dp"
             android:layout_width="wrap_content"

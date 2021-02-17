@@ -75,6 +75,7 @@ public class RejectedRecipeActivity extends AppCompatActivity {
             rec = new Recipes(recipeName,recipeIngredients,recipeMethodTitle,recipeContent,recipeImage,recipeID,addedBy,recipe_Type,recipeFeature);
             rec.setApproved(true);
             recipesRef.child(addedBy).child(recipeID).setValue(rec);
+            deleted_list.child(userRejected).child(recipeID).removeValue();
             finish();
         });
         ///////////////

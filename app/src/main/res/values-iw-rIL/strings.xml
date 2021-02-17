@@ -59,7 +59,7 @@
     <string name="email">אימייל</string>
     <string name="take_picture">צלם תמונה</string>
     <string name="to">אל:</string>
-    <string name="message_title_regarding_recipe">תוכן: בנוגע למתכון:</string>
+    <string name="message_title_regarding_recipe">תוכן: בנוגע למתכון </string>
     <string name="send">שלח</string>
     <string name="opened_messages">הודעות שנקראו:</string>
     <string name="unread_messages">הודעות שלא נקראו:</string>
@@ -111,5 +111,7 @@
     <string name="edit_delete_view_my_recipes">האם אתה רוצה לערוך,לצפות במתכון או למחוק את המתכון?</string>
     <string name="recipe_feature">מאפייני מתכון:</string>
     <string name="recipe_type">סוג מאכל:</string>
+    <string name="recipe_features">מאפייני מתכון :</string>
+    <string name="edit">ערוך</string>
 
 </resources>

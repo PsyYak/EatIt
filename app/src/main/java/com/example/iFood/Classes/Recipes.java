@@ -17,8 +17,8 @@ public class Recipes {
     public String addedBy;
     public String type;
     public String feature;
-    private boolean approved;
-    public Object timestamp;
+    public boolean approved;
+    Object timestamp;
 
     Recipes(){}
 

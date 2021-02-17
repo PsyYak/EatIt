@@ -7,12 +7,14 @@
     android:background="@drawable/background3"
     tools:context=".Activities.MessageActivity">
 <LinearLayout
+
     android:background="@drawable/message_background"
     android:layout_margin="5dp"
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
     <TextView
+        android:gravity="start|center"
         android:textStyle="bold"
         android:text="@string/from"
         android:layout_margin="5dp"
@@ -21,6 +23,8 @@
 
     </TextView>
     <TextView
+
+        android:gravity="start|center"
         android:maxLines="1"
         android:layout_marginTop="5dp"
         android:id="@+id/tvFrom"
@@ -30,12 +34,14 @@
     </TextView>
 </LinearLayout>
     <LinearLayout
+
         android:background="@drawable/message_background"
         android:layout_margin="5dp"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <TextView
+            android:gravity="start|center"
             android:layout_margin="5dp"
             android:textStyle="bold"
             android:text="@string/message_title"
@@ -44,6 +50,8 @@
 
         </TextView>
         <TextView
+
+            android:gravity="start|center"
             android:maxLines="1"
             android:layout_marginTop="5dp"
             android:id="@+id/tvMessageTitle"
@@ -59,6 +67,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <TextView
+            android:gravity="start|center"
             android:layout_margin="5dp"
             android:textStyle="bold"
             android:text="@string/received_date"
@@ -67,6 +76,8 @@
 
         </TextView>
         <TextView
+
+            android:gravity="start|center"
             android:maxLines="1"
             android:layout_marginTop="5dp"
             android:id="@+id/tvMessageDate"
@@ -75,28 +86,41 @@
 
         </TextView>
     </LinearLayout>
-    <LinearLayout
-        android:background="@drawable/message_background"
-        android:layout_margin="5dp"
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="395dp">
     <TextView
-        android:layout_margin="5dp"
-        android:textStyle="bold"
+
+        android:layout_margin="8dp"
+        android:textStyle="bold|italic"
         android:text="@string/message_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
     </TextView>
-    <TextView
-            android:minLines="25"
-            android:gravity="start"
+
+
+    <LinearLayout
+        android:background="@drawable/message_background"
+        android:layout_margin="5dp"
+        android:orientation="vertical"
+        android:isScrollContainer="true"
+        android:layout_width="match_parent"
+        android:layout_height="395dp">
+     <ScrollView
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:scrollbars = "vertical"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginStart="10dp"
+            android:fontFamily="serif"
             android:id="@+id/tvMessageContent"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
         </TextView>
+     </ScrollView>
     </LinearLayout>
 
     <LinearLayout
@@ -106,6 +130,7 @@
         android:layout_height="fill_parent">
 
         <Button
+            android:textStyle="italic"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_margin="5dp"
             android:id="@+id/btnReplayMessage"
@@ -115,6 +140,7 @@
 
         </Button>
         <Button
+            android:textStyle="italic"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_margin="5dp"
             android:id="@+id/btnCloseMessage"

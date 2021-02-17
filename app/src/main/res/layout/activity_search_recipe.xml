@@ -14,6 +14,7 @@
 
 
     <LinearLayout
+
         android:layout_marginTop="10dp"
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -43,7 +44,8 @@
             android:gravity="center"
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:baselineAligned="false">
             <LinearLayout
                 android:layout_weight="1"
                 android:orientation="vertical"
@@ -51,7 +53,7 @@
                 android:layout_height="wrap_content">
                 <TextView
                     android:textStyle="bold|italic"
-                    android:text="Recipe Type:"
+                    android:text="@string/recipe_type"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
 
@@ -59,7 +61,7 @@
                 </TextView>
                 <Spinner
                     android:id="@+id/spinner_type"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
                 </Spinner>
@@ -72,7 +74,7 @@
                 android:layout_height="wrap_content">
                 <TextView
                     android:textStyle="bold|italic"
-                    android:text="Recipe Features:"
+                    android:text="@string/recipe_features"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
 
@@ -97,6 +99,7 @@
         android:layout_height="wrap_content">
 
         <Button
+            android:textStyle="italic"
             style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/search_Recipe"
             android:layout_width="wrap_content"
@@ -105,6 +108,7 @@
             android:text="@string/search">
         </Button>
         <Button
+            android:textStyle="italic"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_margin="5dp"
             android:id="@+id/search_resetField"
@@ -158,5 +162,6 @@
         app:layout_anchor="@id/bottomAppBar"
         app:maxImageSize="35dp"
         app:menu="@menu/menu_add"
-        app:tint="@color/colorWhite" />
+        app:tint="@color/colorWhite"
+        tools:ignore="ContentDescription" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

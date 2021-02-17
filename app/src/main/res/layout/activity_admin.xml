@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+
     android:background="@drawable/background3"
     android:layout_height="match_parent"
     tools:context=".Activities.AdminActivity">
@@ -28,23 +29,25 @@
 
         android:id="@+id/datesLayout"
         android:paddingTop="15dp"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
             <LinearLayout
+                android:gravity="center"
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <TextView
+                    android:textStyle="italic"
                     android:textSize="18sp"
-                    android:layout_marginStart="10dp"
                     android:text="From Date:"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
 
                 </TextView>
                 <TextView
+                    android:textStyle="italic"
                     android:textSize="18sp"
                     android:layout_marginStart="2dp"
                     android:id="@+id/fromDate"
@@ -56,6 +59,7 @@
 
 
                 <TextView
+                    android:textStyle="italic"
                     android:textSize="18sp"
                     android:text=",To Date:"
                     android:layout_marginStart="5dp"
@@ -64,7 +68,7 @@
 
                 </TextView>
                 <TextView
-
+                    android:textStyle="italic"
                     android:textSize="18sp"
                     android:layout_marginStart="2dp"
                     android:id="@+id/toDate"
@@ -73,19 +77,19 @@
                     android:layout_height="wrap_content">
 
                 </TextView>
+                <ImageButton
 
+
+                    android:id="@+id/btnSearchAdmin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_search"
+                    android:text="@string/search">
+
+                </ImageButton>
 
             </LinearLayout>
-        <ImageButton
 
-
-            android:id="@+id/btnSearchAdmin"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_search"
-            android:text="@string/search">
-
-        </ImageButton>
 
 
     </LinearLayout>
