@@ -374,7 +374,6 @@ public class addRecipe_New extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
             }
         })).start();
 
