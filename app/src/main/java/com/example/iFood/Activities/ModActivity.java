@@ -35,7 +35,6 @@ import java.util.List;
 
 
 /**
-
  * This is our Main screen where users can view the last 25 added recipes pulled
  * from the Database.
  * The Main screen holds a menu and adding recipe button.
@@ -52,7 +51,6 @@ public class ModActivity extends AppCompatActivity {
     DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Recipes");
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,24 +64,24 @@ public class ModActivity extends AppCompatActivity {
         getRecipeList();
         userName = getIntent().getStringExtra("username");
         ///////////////////////////////
-        if(getSupportActionBar() != null){
+        if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
 
         bottomAppBar.setNavigationOnClickListener(v -> {
             NavDrawFragment bottomNavFrag = new NavDrawFragment();
             Bundle bundle = new Bundle();
-            bundle.putString("username",getIntent().getStringExtra("username"));
-            bundle.putString("userRole",getIntent().getStringExtra("userRole"));
+            bundle.putString("username", getIntent().getStringExtra("username"));
+            bundle.putString("userRole", getIntent().getStringExtra("userRole"));
             bottomNavFrag.setArguments(bundle);
-            bottomNavFrag.show(getSupportFragmentManager(),"TAG");
+            bottomNavFrag.show(getSupportFragmentManager(), "TAG");
 
         });
         ///////////////////////////////
         bottomAppBar.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
 
-            if(id == R.id.bottomAbout){
+            if (id == R.id.bottomAbout) {
                 Intent about = new Intent(ModActivity.this, About.class);
                 startActivity(about);
             }
@@ -93,10 +91,10 @@ public class ModActivity extends AppCompatActivity {
         addIcon.setOnClickListener(v -> {
             AddDrawFragment addIcon = new AddDrawFragment();
             Bundle bundle = new Bundle();
-            bundle.putString("username",getIntent().getStringExtra("username"));
-            bundle.putString("userRole",getIntent().getStringExtra("userRole"));
+            bundle.putString("username", getIntent().getStringExtra("username"));
+            bundle.putString("userRole", getIntent().getStringExtra("userRole"));
             addIcon.setArguments(bundle);
-            addIcon.show(getSupportFragmentManager(),"TAG");
+            addIcon.show(getSupportFragmentManager(), "TAG");
         });
 
     } // onCreate Ends
@@ -105,7 +103,7 @@ public class ModActivity extends AppCompatActivity {
      * This function responsible for retrieve the last 25 added recipes from the Database
      * and called "refresh_lv" to refresh the List view on each result.
      */
-    private void getRecipeList(){
+    private void getRecipeList() {
         // enter all recipes fetched from DB to arrayList that are not approved by mod/admin
 
         new Thread(() -> {
@@ -115,12 +113,12 @@ public class ModActivity extends AppCompatActivity {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     unApprovedList.clear();
-                    for(DataSnapshot dst : dataSnapshot.getChildren()) {
-                        for(DataSnapshot dst2 : dst.getChildren()) {
+                    for (DataSnapshot dst : dataSnapshot.getChildren()) {
+                        for (DataSnapshot dst2 : dst.getChildren()) {
                             if (dst2.exists()) {
                                 String addedBy = String.valueOf(dst2.child("addBy"));
                                 String check = String.valueOf(dst2.child("approved").getValue());
-                                if(check.equals("false") && !addedBy.equals(userName)){
+                                if (check.equals("false") && !addedBy.equals(userName)) {
                                     Recipes rec = dst2.getValue(Recipes.class);
                                     unApprovedList.add(rec);
                                     // Call function to post all the recipes
@@ -130,17 +128,18 @@ public class ModActivity extends AppCompatActivity {
                             }
                         }
                     }
-                    if(unApprovedList.size() < 1){
+                    if (unApprovedList.size() < 1) {
                         refresh_lv();
                         CoordinatorLayout coordinatorLayout = findViewById(R.id.mainLayoutMod);
                         coordinatorLayout.setBackground(getDrawable(R.drawable.all_clear_background));
                         bottomAppBar.performShow();
-                    }else{
+                    } else {
                         CoordinatorLayout coordinatorLayout = findViewById(R.id.mainLayoutMod);
                         coordinatorLayout.setBackground(getDrawable(R.drawable.background3));
                         bottomAppBar.performShow();
                     }
                 }
+
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
 
@@ -165,21 +164,22 @@ public class ModActivity extends AppCompatActivity {
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
             );
-            params.setMargins(20,0,0,0);
+            params.setMargins(20, 0, 0, 0);
             Button button = alertExit.getButton(AlertDialog.BUTTON_POSITIVE);
             button.setLayoutParams(params);
         });
         alertExit.show();
 
     }
+
     /**
      * This function is responsible for refreshing our Listview with our customer Adapter.
      * spanCount controls on the amount of items on each row.
      */
-    private void refresh_lv(){
-        myAdapter = new RecipeAdapter(this,unApprovedList,activity);
+    private void refresh_lv() {
+        myAdapter = new RecipeAdapter(this, unApprovedList, activity);
 
-        modList.setLayoutManager(new GridLayoutManager(this,1));
+        modList.setLayoutManager(new GridLayoutManager(this, 1));
 
         modList.setAdapter(myAdapter);
     }
@@ -190,7 +190,7 @@ public class ModActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(bcr,filter);
+        registerReceiver(bcr, filter);
     }
 
     /**

@@ -238,7 +238,6 @@ public class SignUpActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         uid = Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getUser()).getUid();
                         // Sign in success, update UI with the signed-in user's information
-
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                         final byte[] data2 = baos.toByteArray();
@@ -273,7 +272,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void userExists() {
-        Toast.makeText(SignUpActivity.this, "Username already found in DB, try different Username", Toast.LENGTH_SHORT).show();
+        Toast.makeText(SignUpActivity.this, "Username already exists, try different Username", Toast.LENGTH_SHORT).show();
         etUsername.setText("");
         etPassword.setText("");
         etUsername.requestFocus();

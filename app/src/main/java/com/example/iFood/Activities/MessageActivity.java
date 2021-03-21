@@ -15,14 +15,13 @@ import com.example.iFood.Utils.ConnectionBCR;
 
 
 /**
-
  * Message Activity that allow the user to view the message he received.
  */
 public class MessageActivity extends AppCompatActivity {
     ConnectionBCR bcr = new ConnectionBCR();
-    TextView fromUser,msgTitle,msgContent,msgDate;
-    String userName,frmUser,dateMsg,contentMsg,titleMsg,activity,userRole,msgID;
-    Button btnReplay,btnClose;
+    TextView fromUser, msgTitle, msgContent, msgDate;
+    String userName, frmUser, dateMsg, contentMsg, titleMsg, activity, userRole, msgID;
+    Button btnReplay, btnClose;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,12 +38,12 @@ public class MessageActivity extends AppCompatActivity {
 
         btnReplay.setOnClickListener(v -> {
             Intent sendMsg = new Intent(MessageActivity.this, SendMessage.class);
-            sendMsg.putExtra("username",userName);
-            sendMsg.putExtra("userRole",userRole);
-            sendMsg.putExtra("activity",activity);
-            sendMsg.putExtra("fromUser",fromUser.getText().toString());
-            sendMsg.putExtra("To User",fromUser.getText().toString());
-            sendMsg.putExtra("msgTitle",msgTitle.getText().toString());
+            sendMsg.putExtra("username", userName);
+            sendMsg.putExtra("userRole", userRole);
+            sendMsg.putExtra("activity", activity);
+            sendMsg.putExtra("fromUser", fromUser.getText().toString());
+            sendMsg.putExtra("To User", fromUser.getText().toString());
+            sendMsg.putExtra("msgTitle", msgTitle.getText().toString());
             startActivity(sendMsg);
             finish();
         });
@@ -67,7 +66,7 @@ public class MessageActivity extends AppCompatActivity {
         frmUser = getIntent().getStringExtra("From User");
         dateMsg = getIntent().getStringExtra("Message Date");
         contentMsg = getIntent().getStringExtra("Message Content");
-        titleMsg= getIntent().getStringExtra("Message Title");
+        titleMsg = getIntent().getStringExtra("Message Title");
         msgID = getIntent().getStringExtra("msgID");
     }
 
@@ -86,7 +85,7 @@ public class MessageActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(bcr,filter);
+        registerReceiver(bcr, filter);
     }
 
     /**

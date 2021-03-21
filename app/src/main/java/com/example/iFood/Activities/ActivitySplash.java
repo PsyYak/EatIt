@@ -22,6 +22,7 @@ public class ActivitySplash extends AppCompatActivity {
     ImageView imageDeliveryMan;
     TextView text1;
     TextView text2;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,16 +34,16 @@ public class ActivitySplash extends AppCompatActivity {
         // Footer
         text2 = findViewById(R.id.text2);
 
-        new Handler().postDelayed(this::startEnterAnimation,1000);
+        new Handler().postDelayed(this::startEnterAnimation, 1000);
 
-        new Handler().postDelayed(this::startExitAnimation,3000);
+        new Handler().postDelayed(this::startExitAnimation, 3000);
 
         new Handler().postDelayed(() -> {
 
             startActivity(new Intent(ActivitySplash.this, LoginActivity.class));
             finish();
 
-        },5000);
+        }, 5000);
 
     }
 

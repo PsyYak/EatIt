@@ -8,7 +8,6 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +17,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.viewpager.widget.ViewPager;
+
 import com.example.iFood.Activities.About;
 import com.example.iFood.Adapters.MessageAdapter;
 import com.example.iFood.Classes.Message;
@@ -33,6 +33,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -46,28 +47,39 @@ import static com.example.iFood.Activities.Inbox.Inbox_Old_Messages.readMsg;
  * This screen responsible on showing the user messages.
  */
 public class Inbox_new extends AppCompatActivity {
-    ConnectionBCR bcr = new ConnectionBCR();
-    String userName,userRole;
-
     public static BottomAppBar bottomAppBar;
-    public static FloatingActionButton addIcon,delIcon;
+    public static FloatingActionButton addIcon, delIcon;
     public static ArrayList<String> msgList = new ArrayList<>();
+    ConnectionBCR bcr = new ConnectionBCR();
+    String userName, userRole;
     Toolbar toolbar;
     ViewPager viewPager;
     TabLayout tabLayout;
 
-    MessageAdapter adapterUnread,adapterRead;
+    MessageAdapter adapterUnread, adapterRead;
     DatabaseReference messagesRef = FirebaseDatabase.getInstance().getReference().child("Messages");
 
     Inbox_New_Messages inboxNewMessages;
     Inbox_Old_Messages inboxOldMessages;
+
+    /**
+     * Check the actual list for delete
+     */
+    public static void checkDelList() {
+        if (msgList.size() >= 1) {
+            delIcon.show();
+        } else {
+            delIcon.hide();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inbox_new);
         // reset delete list size
         msgList.clear();
-       // set items from layout
+        // set items from layout
         setItems();
         // get username and role from previous Intent
         getName_Role();
@@ -85,17 +97,17 @@ public class Inbox_new extends AppCompatActivity {
         bottomAppBar.setNavigationOnClickListener(v -> {
             NavDrawFragment bottomNavFrag = new NavDrawFragment();
             Bundle bundle = new Bundle();
-            bundle.putString("username",userName);
-            bundle.putString("userRole",userRole);
+            bundle.putString("username", userName);
+            bundle.putString("userRole", userRole);
             bottomNavFrag.setArguments(bundle);
-            bottomNavFrag.show(getSupportFragmentManager(),"TAG");
+            bottomNavFrag.show(getSupportFragmentManager(), "TAG");
 
         });
 
-       ///////////////////////////////
+        ///////////////////////////////
         bottomAppBar.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
-            if(id == R.id.bottomAbout){
+            if (id == R.id.bottomAbout) {
                 Intent about = new Intent(Inbox_new.this, About.class);
                 startActivity(about);
             }
@@ -105,17 +117,17 @@ public class Inbox_new extends AppCompatActivity {
         addIcon.setOnClickListener(v -> {
             AddDrawFragment addIcon = new AddDrawFragment();
             Bundle bundle = new Bundle();
-            bundle.putString("username",userName);
-            bundle.putString("userRole",userRole);
+            bundle.putString("username", userName);
+            bundle.putString("userRole", userRole);
             addIcon.setArguments(bundle);
-            addIcon.show(getSupportFragmentManager(),"TAG");
+            addIcon.show(getSupportFragmentManager(), "TAG");
         });
         delIcon.setOnClickListener(v -> {
             ProgressDialog progressDialog = new ProgressDialog(this);
             progressDialog.setCanceledOnTouchOutside(false);
             progressDialog.setMessage("Deleting messages..");
             progressDialog.show();
-            for(int i =0 ; msgList.size()>i;i++) {
+            for (int i = 0; msgList.size() > i; i++) {
                 messagesRef.child(userName).child(msgList.get(i)).removeValue();
                 refresh_lvRead();
                 refresh_lvNotRead();
@@ -128,7 +140,7 @@ public class Inbox_new extends AppCompatActivity {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                Log.w("TAG","Tab selected:"+tab.getText());
+                Log.w("TAG", "Tab selected:" + tab.getText());
                 msgList.clear();
                 checkDelList();
                 refresh_lvRead();
@@ -156,8 +168,8 @@ public class Inbox_new extends AppCompatActivity {
         inboxNewMessages = new Inbox_New_Messages();
         inboxOldMessages = new Inbox_Old_Messages();
         viewPagerAdapter viewPagerAdapter = new viewPagerAdapter(getSupportFragmentManager(), 0);
-        viewPagerAdapter.addFragment(inboxNewMessages,"New Messages");
-        viewPagerAdapter.addFragment(inboxOldMessages,"Old Messages");
+        viewPagerAdapter.addFragment(inboxNewMessages, "New Messages");
+        viewPagerAdapter.addFragment(inboxOldMessages, "Old Messages");
 
         viewPager.setAdapter(viewPagerAdapter);
 
@@ -171,22 +183,23 @@ public class Inbox_new extends AppCompatActivity {
     /**
      * Refresh the list for readList that hold all the messages that been read by the user
      */
-    private void refresh_lvRead(){
+    private void refresh_lvRead() {
 
         adapterRead = new MessageAdapter(Inbox_new.this, readMsg);
 
-        readList.setLayoutManager(new GridLayoutManager(this,1));
+        readList.setLayoutManager(new GridLayoutManager(this, 1));
 
         readList.setAdapter(adapterRead);
     }
+
     /**
      * Refresh the list for runRadList that hold all the messages that have not been read by the user
      */
-    private void refresh_lvNotRead(){
+    private void refresh_lvNotRead() {
 
         adapterUnread = new MessageAdapter(Inbox_new.this, unReadmsg);
 
-        unReadList.setLayoutManager(new GridLayoutManager(this,1));
+        unReadList.setLayoutManager(new GridLayoutManager(this, 1));
 
         unReadList.setAdapter(adapterUnread);
     }
@@ -194,7 +207,7 @@ public class Inbox_new extends AppCompatActivity {
     /**
      * This function responsible on fetching information regarding the user messages
      */
-    private void getMessages(){
+    private void getMessages() {
         new Thread(() -> messagesRef.orderByKey().addValueEventListener(new ValueEventListener() {
             @SuppressLint("UseCompatLoadingForDrawables")
             @Override
@@ -202,7 +215,7 @@ public class Inbox_new extends AppCompatActivity {
 
                 unReadmsg.clear();
                 readMsg.clear();
-                for(DataSnapshot dst : dataSnapshot.getChildren()) {
+                for (DataSnapshot dst : dataSnapshot.getChildren()) {
                     if (Objects.equals(dst.getKey(), userName)) {
                         // Log.i("message","Message Key: "+dst.getKey());
                         for (DataSnapshot dst2 : dst.getChildren()) {
@@ -218,23 +231,23 @@ public class Inbox_new extends AppCompatActivity {
                         }
                     }
                 }
-                 if(unReadmsg.size()<1){
-                     Objects.requireNonNull(inboxNewMessages.getView()).setBackground(getDrawable(R.drawable.all_clear_background));
-                 }else{
-                     Objects.requireNonNull(inboxNewMessages.getView()).setBackground(getDrawable(R.drawable.background3));
-                 }
-                 if(readMsg.size()<1){
-                     Objects.requireNonNull(inboxOldMessages.getView()).setBackground(getDrawable(R.drawable.all_clear_background));
-                 }else{
-                     Objects.requireNonNull(inboxOldMessages.getView()).setBackground(getDrawable(R.drawable.background3));
-                 }
+                if (unReadmsg.size() < 1) {
+                    Objects.requireNonNull(inboxNewMessages.getView()).setBackground(getDrawable(R.drawable.all_clear_background));
+                } else {
+                    Objects.requireNonNull(inboxNewMessages.getView()).setBackground(getDrawable(R.drawable.background3));
+                }
+                if (readMsg.size() < 1) {
+                    Objects.requireNonNull(inboxOldMessages.getView()).setBackground(getDrawable(R.drawable.all_clear_background));
+                } else {
+                    Objects.requireNonNull(inboxOldMessages.getView()).setBackground(getDrawable(R.drawable.background3));
+                }
 
             }
 
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.w("TAG","Error:"+databaseError.getMessage());
+                Log.w("TAG", "Error:" + databaseError.getMessage());
 
             }
         })).start();
@@ -249,25 +262,14 @@ public class Inbox_new extends AppCompatActivity {
     }
 
     /**
-     * Check the actual list for delete
-     */
-    public static void checkDelList(){
-        if(msgList.size() >= 1){
-            delIcon.show();
-         }else{
-            delIcon.hide();
-}
-    }
-
-    /**
      * Register our Broadcast Receiver when opening the app.
-     *
      */
     protected void onStart() {
         super.onStart();
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(bcr,filter);
+        registerReceiver(bcr, filter);
     }
+
     /**
      * Stop our Broadcast Receiver when the app is closed.
      */
@@ -277,11 +279,22 @@ public class Inbox_new extends AppCompatActivity {
         unregisterReceiver(bcr);
     }
 
+    /**
+     * Variables deceleration and connect them with the layout.
+     */
+    public void setItems() {
+
+        bottomAppBar = findViewById(R.id.bottomAppBar);
+        addIcon = findViewById(R.id.bottomAddIcon);
+        delIcon = findViewById(R.id.bottomDelIcon);
+        viewPager = findViewById(R.id.inboxViewPager);
+        tabLayout = findViewById(R.id.inboxTabLayout);
+    }
+
     private static class viewPagerAdapter extends FragmentPagerAdapter {
 
         private final List<Fragment> fragments = new ArrayList<>();
         private final List<String> fragmentsTitle = new ArrayList<>();
-
 
 
         public viewPagerAdapter(@NonNull FragmentManager fm, int behavior) {
@@ -290,7 +303,7 @@ public class Inbox_new extends AppCompatActivity {
 
         }
 
-        public void addFragment(Fragment fragment, String title){
+        public void addFragment(Fragment fragment, String title) {
             fragments.add(fragment);
             fragmentsTitle.add(title);
         }
@@ -309,20 +322,8 @@ public class Inbox_new extends AppCompatActivity {
             return fragments.size();
         }
 
-        public CharSequence getPageTitle(int position){
+        public CharSequence getPageTitle(int position) {
             return fragmentsTitle.get(position);
         }
-    }
-
-    /**
-     * Variables deceleration and connect them with the layout.
-     */
-    public void setItems(){
-
-        bottomAppBar = findViewById(R.id.bottomAppBar);
-        addIcon = findViewById(R.id.bottomAddIcon);
-        delIcon = findViewById(R.id.bottomDelIcon);
-        viewPager = findViewById(R.id.inboxViewPager);
-        tabLayout = findViewById(R.id.inboxTabLayout);
     }
 }

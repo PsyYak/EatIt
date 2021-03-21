@@ -44,17 +44,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 /**
-
  * This Activity is for sending message for other users regarding their recipes.
- *
  */
 public class SendMessage extends AppCompatActivity {
-    private ConnectionBCR bcr = new ConnectionBCR();
-    String formattedDate,userName, uniqueID,toUser,url,activity;
-    TextView etFrom,etTo;
-    private EditText etTitle,etContent;
-    Button btnSend,btnClose;
-    private ProgressDialog progressDialog;
+    String formattedDate, userName, uniqueID, toUser, url, activity;
+    TextView etFrom, etTo;
+    Button btnSend, btnClose;
     //
     // Connect to DB
     DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Messages");
@@ -63,8 +58,12 @@ public class SendMessage extends AppCompatActivity {
     FirebaseStorage storage = FirebaseStorage.getInstance();
     StorageReference storageRef = storage.getReference();
     // Service
-    String uid="";
+    String uid = "";
     APIService apiService;
+    private final ConnectionBCR bcr = new ConnectionBCR();
+    private EditText etTitle, etContent;
+    private ProgressDialog progressDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,8 +92,8 @@ public class SendMessage extends AppCompatActivity {
         getUserID();
         // Setting variable with related text
         etFrom.setText(String.format("%s", userName));
-        etTo.setText(String.format("%s",toUser));
-        etTitle.setText(String.format("%s",getIntent().getStringExtra("msgTitle")));
+        etTo.setText(String.format("%s", toUser));
+        etTitle.setText(String.format("%s", getIntent().getStringExtra("msgTitle")));
 
         // Listeners
         btnClose.setOnClickListener(v -> {
@@ -102,20 +101,20 @@ public class SendMessage extends AppCompatActivity {
             finish();
         });
         btnSend.setOnClickListener(v -> {
-            if(!etTitle.getText().toString().isEmpty() || !etContent.getText().toString().isEmpty()){
-                if(etContent.getText().toString().length() > 10) {
+            if (!etTitle.getText().toString().isEmpty() || !etContent.getText().toString().isEmpty()) {
+                if (etContent.getText().toString().length() > 10) {
                     // Make sure there is a title + content and the call function here to compose the message
                     progressDialog.setMessage("Sending message, please wait.");
                     progressDialog.show();
                     composeMsg();
-                }else{
-                    Toast.makeText(SendMessage.this,"Message content too short.",Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(SendMessage.this, "Message content too short.", Toast.LENGTH_SHORT).show();
                 }
-            }else{
-                Toast.makeText(SendMessage.this,"One or more required fields are empty.",Toast.LENGTH_SHORT).show();
-                if(etTitle.getText().toString().isEmpty())
+            } else {
+                Toast.makeText(SendMessage.this, "One or more required fields are empty.", Toast.LENGTH_SHORT).show();
+                if (etTitle.getText().toString().isEmpty())
                     etTitle.hasFocus();
-                if(etContent.getText().toString().isEmpty())
+                if (etContent.getText().toString().isEmpty())
                     etContent.hasFocus();
             }
         });
@@ -131,7 +130,7 @@ public class SendMessage extends AppCompatActivity {
                 assert user != null;
                 //Log.d("TAG","User:"+user.toString());
                 uid = user.getUid();
-               // Log.d("TAG","uid:"+uid);
+                // Log.d("TAG","uid:"+uid);
             }
 
             @Override
@@ -141,29 +140,28 @@ public class SendMessage extends AppCompatActivity {
         });
 
 
-
     }
 
     /**
      * Function is responsible on fetching the user image from the user details.
      * if not found, get the noImage file from the Database
      */
-    public void getUserURL(){
+    public void getUserURL() {
 
         userRef.child(userName).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                   // Log.i("message","key is:"+dataSnapshot.getKey());
+                // Log.i("message","key is:"+dataSnapshot.getKey());
                 Users u = dataSnapshot.getValue(Users.class);
                 assert u != null;
                 url = u.getPic_url();
-                 //   Log.d("TAG","URL is:"+u.getPic_url());
-                if(url==null){
-                       storageRef.child("Photos").child("noImage").getDownloadUrl().addOnSuccessListener(uri -> {
-                       Log.d("TAG","url:"+uri.toString());
-                       url = uri.toString();
-                       userRef.child(userName).child("pic_url").setValue(url);
+                //   Log.d("TAG","URL is:"+u.getPic_url());
+                if (url == null) {
+                    storageRef.child("Photos").child("noImage").getDownloadUrl().addOnSuccessListener(uri -> {
+                        Log.d("TAG", "url:" + uri.toString());
+                        url = uri.toString();
+                        userRef.child(userName).child("pic_url").setValue(url);
                     });
                 }
 
@@ -177,59 +175,62 @@ public class SendMessage extends AppCompatActivity {
 
 
     }
-    private void UpdateToken(){
-        FirebaseUser firebaseUser= FirebaseAuth.getInstance().getCurrentUser();
-        String refreshToken= FirebaseInstanceId.getInstance().getToken();
-        Token token= new Token(refreshToken);
+
+    private void UpdateToken() {
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        String refreshToken = FirebaseInstanceId.getInstance().getToken();
+        Token token = new Token(refreshToken);
         FirebaseDatabase.getInstance().getReference("Tokens").child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).setValue(token);
     }
+
     /**
      * Function is responsible for saving the messages and the information in the Database.
      */
-    public void composeMsg(){
+    public void composeMsg() {
 
-        final String title,userImageUrl,message,toUser;
+        final String title, userImageUrl, message, toUser;
         final String shortMsg;
 
 
         title = etTitle.getText().toString();
         message = etContent.getText().toString();
-        if(etContent.getText().toString().length()>65){
-            shortMsg = etContent.getText().toString().substring(0,50);
-        }else{
+        if (etContent.getText().toString().length() > 65) {
+            shortMsg = etContent.getText().toString().substring(0, 50);
+        } else {
             shortMsg = etContent.getText().toString();
         }
         toUser = etTo.getText().toString();
         userImageUrl = url;
         Message msg;
         uniqueID = String.valueOf(ref.push().getKey());
-        msg = new Message(title,userImageUrl,message,toUser,formattedDate,userName, uniqueID,"false");
-        Log.w("TAG","Message: "+msg.toString());
+        msg = new Message(title, userImageUrl, message, toUser, formattedDate, userName, uniqueID, "false");
+        Log.w("TAG", "Message: " + msg.toString());
         ref.child(toUser).child(uniqueID).setValue(msg);
         apiService = Client.getClient("https://fcm.googleapis.com/").create(APIService.class);
 
-            FirebaseDatabase.getInstance().getReference().child("Tokens").child(uid).child("token").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot.getValue(String.class) != null) {
-                        String userToken = snapshot.getValue(String.class);
-                        //Log.w("TAG","Token:"+userToken);
-                        sendNotifications(userToken, title, shortMsg);
-                       // Log.w("TAG", "Sent notification.");
-                    } else {
-                        Log.w("TAG", "Token not found.");
-                    }
+        FirebaseDatabase.getInstance().getReference().child("Tokens").child(uid).child("token").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.getValue(String.class) != null) {
+                    String userToken = snapshot.getValue(String.class);
+                    //Log.w("TAG","Token:"+userToken);
+                    sendNotifications(userToken, title, shortMsg);
+                    // Log.w("TAG", "Sent notification.");
+                } else {
+                    Log.w("TAG", "Token not found.");
                 }
+            }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                              Log.w("TAG","Error:"+error.getMessage());
-                }
-            });
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w("TAG", "Error:" + error.getMessage());
+            }
+        });
 
         progressDialog.dismiss();
         finish();
     }
+
     public void sendNotifications(String usertoken, String title, String message) {
         Data data = new Data(title, message);
         NotificationSender sender = new NotificationSender(data, usertoken);
@@ -248,17 +249,18 @@ public class SendMessage extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<MyResponse> call, Throwable t) {
-                     Log.w("TAG","Error:"+t.getMessage());
+                Log.w("TAG", "Error:" + t.getMessage());
             }
         });
     }
-     /**
+
+    /**
      * Register our Broadcast Receiver when opening the app.
      */
     protected void onStart() {
         super.onStart();
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(bcr,filter);
+        registerReceiver(bcr, filter);
     }
 
     /**
