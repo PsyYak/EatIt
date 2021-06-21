@@ -287,49 +287,46 @@ public class addRecipe_New extends AppCompatActivity {
      */
     public void createRecipe() {
         Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                final byte[] data = baos.toByteArray();
-                final UploadTask uploadTask = mStorage.child("Photos/" + UUID.randomUUID().toString()).putBytes(data);
-                // close onSuccess method
-                uploadTask.addOnFailureListener(exception -> {
-                    // Handle unsuccessful uploads
-                }).addOnSuccessListener(taskSnapshot -> {
-                    if (taskSnapshot.getMetadata() != null) {
-                        if (taskSnapshot.getMetadata().getReference() != null) {
-                            Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
-                            result.addOnSuccessListener(uri -> {
-                                // Get the URL string from the Storage of the Image that was just uploaded
-                                recipeImage = uri.toString();
-                                // Generate random unique key in the DB
-                                id = String.valueOf(DB.child("Recipes").push().getKey());
-                                // Declare the recipe class.
-                                Recipes rec;
-                                // Assign values to constructor
-                                rec = new Recipes(recipeName, recipeIngredients, getResources().getString(R.string.method), recipeInstructions, recipeImage, id, userName, recipe_Type, recipeFeature);
-                                // Set it as new recipe that waiting for approval.
-                                rec.setApproved(false);
-                                // Adding the recipe with all the above to DB.
-                                DB.child("Recipes").child(id).child(userName).setValue(rec);
-                                // Toast the User a message process is finished.
-                                Toast.makeText(addRecipe_New.this, "Recipe added successfully", Toast.LENGTH_SHORT).show();
-                                // Reset all the variables to empty.
-                                resetRecipe();
-                                sendModNotification();
+        handler.postDelayed(() -> {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            final byte[] data = baos.toByteArray();
+            final UploadTask uploadTask = mStorage.child("Photos/" + UUID.randomUUID().toString()).putBytes(data);
+            // close onSuccess method
+            uploadTask.addOnFailureListener(exception -> {
+                // Handle unsuccessful uploads
+            }).addOnSuccessListener(taskSnapshot -> {
+                if (taskSnapshot.getMetadata() != null) {
+                    if (taskSnapshot.getMetadata().getReference() != null) {
+                        Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
+                        result.addOnSuccessListener(uri -> {
+                            // Get the URL string from the Storage of the Image that was just uploaded
+                            recipeImage = uri.toString();
+                            // Generate random unique key in the DB
+                            id = String.valueOf(DB.child("Recipes").push().getKey());
+                            // Declare the recipe class.
+                            Recipes rec;
+                            // Assign values to constructor
+                            rec = new Recipes(recipeName, recipeIngredients, getResources().getString(R.string.method), recipeInstructions, recipeImage, id, userName, recipe_Type, recipeFeature);
+                            // Set it as new recipe that waiting for approval.
+                            rec.setApproved(false);
+                            // Adding the recipe with all the above to DB.
+                            DB.child("Recipes").child(id).child(userName).setValue(rec);
+                            // Toast the User a message process is finished.
+                            Toast.makeText(addRecipe_New.this, "Recipe added successfully", Toast.LENGTH_SHORT).show();
+                            // Reset all the variables to empty.
+                            resetRecipe();
+                            sendModNotification();
 
-                                // Dismiss Dialog.
-                                progressDialog.dismiss();
-                                Toast.makeText(addRecipe_New.this, "A moderator will review your recipe as soon as possible, thank you.", Toast.LENGTH_LONG).show();
+                            // Dismiss Dialog.
+                            progressDialog.dismiss();
+                            Toast.makeText(addRecipe_New.this, "A moderator will review your recipe as soon as possible, thank you.", Toast.LENGTH_LONG).show();
 
 
-                            });
-                        }
+                        });
                     }
-                }); // close OnSuccessListener
-            }
+                }
+            }); // close OnSuccessListener
         }, 1000);
 
     }
@@ -392,7 +389,7 @@ public class addRecipe_New extends AppCompatActivity {
         NotificationSender sender = new NotificationSender(data, usertoken);
         apiService.sendNotification(sender).enqueue(new Callback<MyResponse>() {
             @Override
-            public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
+            public void onResponse(@NonNull Call<MyResponse> call, @NonNull Response<MyResponse> response) {
                 if (response.code() == 200) {
                     assert response.body() != null;
                     if (response.body().success != 1) {
@@ -402,7 +399,7 @@ public class addRecipe_New extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<MyResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<MyResponse> call, @NonNull Throwable t) {
                 Log.w("TAG", "Error:" + t.getMessage());
             }
         });

@@ -221,12 +221,7 @@ public class LoginActivity extends AppCompatActivity {
                 progressDialog.setMessage(getString(R.string.connecting_login));
                 progressDialog.show();
                 progressDialog.setCanceledOnTouchOutside(false);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        initSignIn(email, password);
-                    }
-                });
+                runOnUiThread(() -> initSignIn(email, password));
 
 
             }

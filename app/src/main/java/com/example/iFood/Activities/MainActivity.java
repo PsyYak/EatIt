@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,6 +23,8 @@ import com.example.iFood.MenuFragments.NavDrawFragment;
 import com.example.iFood.Notification.Token;
 import com.example.iFood.R;
 import com.example.iFood.Utils.ConnectionBCR;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,7 +35,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.iid.FirebaseInstanceId;
+
+import com.google.firebase.iid.FirebaseInstanceIdReceiver;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -86,38 +91,34 @@ public class MainActivity extends AppCompatActivity {
     private void initFavPref() {
         List<String> favList = new ArrayList<>();
         sharedPreferences = getSharedPreferences("favRecipes", MODE_PRIVATE);
-        runOnUiThread(new Runnable() {
+        runOnUiThread(() -> refFav.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void run() {
-                refFav.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                        for (DataSnapshot dst : dataSnapshot.getChildren()) {
-                            if (Objects.equals(dst.getKey(), userName))
-                                for (DataSnapshot userRecipes : dst.getChildren()) {
-                                    Recipes results = userRecipes.getValue(Recipes.class);
-                                    favList.add(results.getId());
-                                    Gson gson = new Gson();
-                                    String json = gson.toJson(favList);
-                                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                                    editor.putString("recipeID", json);
-                                    editor.apply();
+                for (DataSnapshot dst : dataSnapshot.getChildren()) {
+                    if (Objects.equals(dst.getKey(), userName))
+                        for (DataSnapshot userRecipes : dst.getChildren()) {
+                            Recipes results = userRecipes.getValue(Recipes.class);
+                            assert results != null;
+                            favList.add(results.getId());
+                            Gson gson = new Gson();
+                            String json = gson.toJson(favList);
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putString("recipeID", json);
+                            editor.apply();
 
-
-                                }
 
                         }
 
-                    }
+                }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
             }
-        });
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        }));
 
 
     }
@@ -143,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
     private void initUiViews() {
         myrecyclerView = findViewById(R.id.recyclerView_id);
         myrecyclerView.setAdapter(myAdapter);
+        myrecyclerView.setItemAnimator(new DefaultItemAnimator());
         bottomAppBar = findViewById(R.id.bottomAppBar);
         addIcon = findViewById(R.id.bottomAddIcon);
 
@@ -196,10 +198,19 @@ public class MainActivity extends AppCompatActivity {
 
     private void UpdateToken() {
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        String refreshToken = FirebaseInstanceId.getInstance().getToken();
-        Token token = new Token(refreshToken);
-        // ref.child("Users").child(userName).child("token").setValue(token);
-        FirebaseDatabase.getInstance().getReference("Tokens").child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).setValue(token);
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
+            @Override
+            public void onComplete(@NonNull Task<String> task) {
+                if(!task.isSuccessful()){
+                    Log.w("MainActivity","Fetching FCM registration token failed", task.getException());
+
+                }else {
+                    String newToken = task.getResult();
+                    Token token = new Token(newToken);
+                    FirebaseDatabase.getInstance().getReference("Tokens").child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).setValue(token);
+                }
+            }
+        });
     }
 
     /**

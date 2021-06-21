@@ -3,7 +3,6 @@ package com.example.iFood.Activities;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
@@ -111,33 +110,30 @@ public class SearchRecipe extends AppCompatActivity {
                 }
             });
             builder.setPositiveButton("Select", (dialog, which) -> {
-                String data = "";
+                StringBuilder data = new StringBuilder();
                 int i = 0;
                 for (String item : search_featureList) {
                     if (i++ == search_featureList.size() - 1) {
-                        data = data + item;
+                        data.append(item);
                     } else {
-                        data = data + item + ",";
+                        data.append(item).append(",");
                     }
 
                 }
-                search_feature_data = data;
-                tv_feature.setText(data);
+                search_feature_data = data.toString();
+                tv_feature.setText(data.toString());
                 search_featureList.clear();
             });
             builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
             final AlertDialog alertFeature = builder.create();
-            alertFeature.setOnShowListener(new DialogInterface.OnShowListener() {
-                @Override
-                public void onShow(DialogInterface dialog) {
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.WRAP_CONTENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT
-                    );
-                    params.setMargins(20, 0, 0, 0);
-                    Button button = alertFeature.getButton(AlertDialog.BUTTON_POSITIVE);
-                    button.setLayoutParams(params);
-                }
+            alertFeature.setOnShowListener(dialog -> {
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+                params.setMargins(20, 0, 0, 0);
+                Button button = alertFeature.getButton(AlertDialog.BUTTON_POSITIVE);
+                button.setLayoutParams(params);
             });
             alertFeature.show();
         });

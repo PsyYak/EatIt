@@ -128,6 +128,7 @@ public class EditItemImage {
             if (takePictureIntent.resolveActivity(mContext.getPackageManager()) != null) {
                 try {
                     if(n.equals("ProfileActivity")) {
+
                         ((ProfileActivity) mContext).startActivityForResult(takePictureIntent, TAKE_PICTURE);
                     }
                     if(n.equals("EditRecipeActivity")){

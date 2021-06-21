@@ -4,12 +4,14 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.util.Range;
 import android.view.Menu;
@@ -80,21 +82,26 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
     TextView fromDate, toDate;
     // Broadcast
     ConnectionBCR bcr = new ConnectionBCR();
+    // Dialog
+    ProgressDialog progressDialog;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
-
+        progressDialog = new ProgressDialog(AdminActivity.this);
 
         setVariables();
         setCurrentDateonOpen();
 
         // onClick Listeners
         btnSearch.setOnClickListener(v -> {
-            getUsersRecipesData();
-            getRejectData();
+            progressDialog.setCancelable(false);
+            progressDialog.setMessage("Fetching data, please wait..");
+            progressDialog.show();
+            new Handler().postDelayed(this::getUsersRecipesData, 3000);
+            new Handler().postDelayed(this::getRejectData, 3000);
         });
         // more onClick listeners with override their onClick method
         fromDate.setOnClickListener(this);
@@ -315,22 +322,46 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
                         Range<Long> recipeRejectTimeRange = Range.create(from.getTime(), to.getTime());
                         rejectRecipeTime = rejectedRecipe.timestamp;
                         if (recipeRejectTimeRange.contains(rejectRecipeTime)) {
-                            //  Can replace with a function that have a switch case based on each reason
-                            //  Log.w("TAG","Reasons:"+rejectedRecipe.rejectReasons);
+                            switch (rejectedRecipe.rejectReasons){
+                                case "Spam":
+                                    spam++;
+                                    break;
+                                case "Missing info":
+                                    missingInfo++;
+                                    break;
+                                case "Bad Picture":
+                                    badPicture++;
+                                    break;
+                                case "Bad Title":
+                                    badTitle++;
+                                    break;
+                                case "Bad Desc":
+                                    badDesc++;
+                                    break;
+                                case "Missing Ingredients Desc":
+                                    missingIngredients++;
+                                    break;
+                                default:
+                                    other++;
+                                    break;
+
+
+                            }
+                            /*
                             if (rejectedRecipe.rejectReasons.contains("Spam")) spam++;
-                            if (rejectedRecipe.rejectReasons.contains("Missing info"))
-                                missingInfo++;
+                            if (rejectedRecipe.rejectReasons.contains("Missing info"))missingInfo++;
                             if (rejectedRecipe.rejectReasons.contains("Bad Picture")) badPicture++;
                             if (rejectedRecipe.rejectReasons.contains("Bad Desc")) badDesc++;
                             if (rejectedRecipe.rejectReasons.contains("Bad Title")) badTitle++;
-                            if (rejectedRecipe.rejectReasons.contains("Missing Ingredients"))
-                                missingIngredients++;
+                            if (rejectedRecipe.rejectReasons.contains("Missing Ingredients"))missingIngredients++;
                             if (!rejectedRecipe.rejectReasons.contains("Spam") &&
                                     !rejectedRecipe.rejectReasons.contains("Missing info") &&
                                     !rejectedRecipe.rejectReasons.contains("Bad Picture") &&
                                     !rejectedRecipe.rejectReasons.contains("Bad Title") &&
                                     !rejectedRecipe.rejectReasons.contains("Missing Ingredients"))
                                 other++;
+
+                             */
                         }
 
 
@@ -338,12 +369,14 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
                 }
                 setColors();
                 setDelPieData();
+                progressDialog.dismiss();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
+
         });
     }
 

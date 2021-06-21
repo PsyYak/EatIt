@@ -34,11 +34,13 @@
         android:layout_height="wrap_content">
 
             <LinearLayout
+
                 android:gravity="center"
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <TextView
+
                     android:textStyle="italic"
                     android:textSize="18sp"
                     android:text="From Date:"
@@ -79,7 +81,7 @@
                 </TextView>
                 <ImageButton
 
-
+                    android:backgroundTint="@color/colorPrimary"
                     android:id="@+id/btnSearchAdmin"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -201,7 +203,7 @@
                         android:textStyle="italic"
                         android:layout_marginStart="10dp"
                         android:layout_weight="1"
-                        android:text="Show top reject reason by moderators"
+                        android:text="Show top reject reason by moderators."
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 

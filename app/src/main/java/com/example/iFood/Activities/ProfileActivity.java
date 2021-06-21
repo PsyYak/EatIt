@@ -76,7 +76,7 @@ public class ProfileActivity extends AppCompatActivity {
     private EditItemImage mEditItemImage;
     // User Info related
     private String imageURL;
-    private Users u;
+    private Users user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,19 +109,9 @@ public class ProfileActivity extends AppCompatActivity {
         editFname.setOnClickListener(v -> {
             changeFname();
         });
-        editLname.setOnClickListener(v -> {
-            changeLname();
-
-        });
-        editPhone.setOnClickListener(v -> {
-            changePhone();
-
-        });
-        editPass.setOnClickListener(v -> {
-
-            InitResetPassword();
-
-        });
+        editLname.setOnClickListener(v -> changeLname());
+        editPhone.setOnClickListener(v -> changePhone());
+        editPass.setOnClickListener(v -> InitResetPassword());
         userProfileImage.setOnClickListener(v -> mEditItemImage.openDialog());
     }
 
@@ -266,14 +256,14 @@ public class ProfileActivity extends AppCompatActivity {
 
                     for (DataSnapshot dbAnswer : dataSnapshot.getChildren()) {
                         if (Objects.equals(dbAnswer.getKey(), userName)) {
-                            u = dbAnswer.getValue(Users.class);
-                            assert u != null;
-                            tvUsername.setText(String.format("%s", u.getUsername()));
-                            firstName.setText(String.format("%s", u.Fname));
-                            lastName.setText(String.format("%s", u.Lname));
-                            phone.setText(u.Phone);
-                            email.setText(String.format("%s", u.Email));
-                            Picasso.get().load(u.getPic_url()).into(userProfileImage);
+                            user = dbAnswer.getValue(Users.class);
+                            assert user != null;
+                            tvUsername.setText(String.format("%s", user.getUsername()));
+                            firstName.setText(String.format("%s", user.Fname));
+                            lastName.setText(String.format("%s", user.Lname));
+                            phone.setText(user.Phone);
+                            email.setText(String.format("%s", user.Email));
+                            Picasso.get().load(user.getPic_url()).into(userProfileImage);
                             break;
 
 
@@ -295,12 +285,17 @@ public class ProfileActivity extends AppCompatActivity {
     @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     protected void onResume() {
-        // if the image is not null upload it to firebase
-        if (imageBitmap != null && !Objects.equals(userProfileImage.getDrawable().getConstantState(), getResources().getDrawable(R.drawable.no_image).getConstantState())) {
-            progressDialog.setMessage("Uploading Photo");
-            progressDialog.show();
-            updatePhoto();
-        }
+        final Handler handler = new Handler();
+        handler.postDelayed(() -> {
+            // Delay for 3 seconds
+            // if the image is not null upload it to firebase
+            if (imageBitmap != null && !Objects.equals(userProfileImage.getDrawable().getConstantState(), getResources().getDrawable(R.drawable.no_image).getConstantState())) {
+                progressDialog.setMessage("Uploading Photo");
+                progressDialog.show();
+                updatePhoto();
+            }
+
+        }, 3000);
         super.onResume();
     }
 
@@ -458,29 +453,26 @@ public class ProfileActivity extends AppCompatActivity {
      */
     private void updatePhoto() {
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                final byte[] data = baos.toByteArray();
-                final UploadTask uploadTask = mStorage.child("Users_Profiles").child(userName).putBytes(data);
-                uploadTask.addOnFailureListener(e -> {
-                    progressDialog.dismiss();
-                    Toast.makeText(ProfileActivity.this, "Photo upload failed, please try again.", Toast.LENGTH_SHORT).show();
-                }).addOnSuccessListener(taskSnapshot -> {
-                    if (taskSnapshot.getMetadata() != null) {
-                        if (taskSnapshot.getMetadata().getReference() != null) {
-                            Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
-                            result.addOnSuccessListener(uri -> {
-                                imageURL = uri.toString();
-                                ref.child("Users").child(userName).child("pic_url").setValue(imageURL);
-                                progressDialog.dismiss();
-                            });
-                        }
+        runOnUiThread(() -> {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            final byte[] data = baos.toByteArray();
+            final UploadTask uploadTask = mStorage.child("Users_Profiles").child(userName).putBytes(data);
+            uploadTask.addOnFailureListener(e -> {
+                progressDialog.dismiss();
+                Toast.makeText(ProfileActivity.this, "Photo upload failed, please try again.", Toast.LENGTH_SHORT).show();
+            }).addOnSuccessListener(taskSnapshot -> {
+                if (taskSnapshot.getMetadata() != null) {
+                    if (taskSnapshot.getMetadata().getReference() != null) {
+                        Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
+                        result.addOnSuccessListener(uri -> {
+                            imageURL = uri.toString();
+                            ref.child("Users").child(userName).child("pic_url").setValue(imageURL);
+                            progressDialog.dismiss();
+                        });
                     }
-                });
-            }
+                }
+            });
         });
 
     }

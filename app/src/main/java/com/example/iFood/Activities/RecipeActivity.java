@@ -73,6 +73,7 @@ public class RecipeActivity extends AppCompatActivity {
     DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Favorites");
     DatabaseReference recipesRef = FirebaseDatabase.getInstance().getReference().child("Recipes");
     DatabaseReference deleted_list = FirebaseDatabase.getInstance().getReference().child("Deleted List");
+
     private boolean isExists = false;
 
     @Override

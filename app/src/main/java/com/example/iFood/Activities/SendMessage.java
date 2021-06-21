@@ -30,7 +30,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -118,7 +117,7 @@ public class SendMessage extends AppCompatActivity {
                     etContent.hasFocus();
             }
         });
-        UpdateToken();
+       // UpdateToken();
     } // onCreate ends
 
     private void getUserID() {
@@ -175,14 +174,6 @@ public class SendMessage extends AppCompatActivity {
 
 
     }
-
-    private void UpdateToken() {
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        String refreshToken = FirebaseInstanceId.getInstance().getToken();
-        Token token = new Token(refreshToken);
-        FirebaseDatabase.getInstance().getReference("Tokens").child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).setValue(token);
-    }
-
     /**
      * Function is responsible for saving the messages and the information in the Database.
      */

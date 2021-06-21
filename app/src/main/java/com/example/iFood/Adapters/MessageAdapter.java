@@ -4,10 +4,7 @@ package com.example.iFood.Adapters;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -74,6 +71,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyHolder
         //////
         myHolder.msgTitle.setText(mData.get(i).getTitle());
         myHolder.userName.setText(mData.get(i).getFromUser());
+
         Picasso.get().load(mData.get(i).getUserImageUrl()).into(myHolder.userImg);
 
 
@@ -114,6 +112,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyHolder
         });
 
     }
+
+
 
     @Override
     public int getItemCount() {

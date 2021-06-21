@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -78,6 +79,7 @@ public class Inbox_new extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inbox_new);
         // reset delete list size
+        if(msgList.size()>0)
         msgList.clear();
         // set items from layout
         setItems();
@@ -127,14 +129,19 @@ public class Inbox_new extends AppCompatActivity {
             progressDialog.setCanceledOnTouchOutside(false);
             progressDialog.setMessage("Deleting messages..");
             progressDialog.show();
-            for (int i = 0; msgList.size() > i; i++) {
-                messagesRef.child(userName).child(msgList.get(i)).removeValue();
-                refresh_lvRead();
-                refresh_lvNotRead();
-            }
-            delIcon.hide();
-            msgList.clear();
-            progressDialog.dismiss();
+            Handler handler = new Handler();
+            handler.postDelayed(() -> {
+                for (int i = 0; msgList.size() > i; i++) {
+                    messagesRef.child(userName).child(msgList.get(i)).removeValue();
+                    refresh_lvRead();
+                    refresh_lvNotRead();
+                }
+                delIcon.hide();
+                msgList.clear();
+                progressDialog.dismiss();
+            },3000);
+
+
 
         });
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {

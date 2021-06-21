@@ -1,10 +1,12 @@
 package com.example.iFood.Activities;
 
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -87,18 +89,10 @@ public class EditRecipeActivity extends AppCompatActivity {
         progressDialog.show();
 
         Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Picasso.get().load(recipeImageURL).into(ivRecipeImage);
-                        progressDialog.dismiss();
-                    }
-                });
-            }
-        },2000);
+        handler.postDelayed(() -> runOnUiThread(() -> {
+            Picasso.get().load(recipeImageURL).into(ivRecipeImage);
+            progressDialog.dismiss();
+        }),2000);
       //  Log.w("TAG","recipeID:"+recipeID+", username:"+userName);
 
         btnSave.setOnClickListener(v -> {

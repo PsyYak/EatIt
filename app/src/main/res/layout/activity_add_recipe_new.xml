@@ -69,6 +69,7 @@
 
         </Button>
         <Button
+
             android:textStyle="italic"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_marginStart="25dp"
