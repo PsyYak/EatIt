@@ -412,10 +412,8 @@ public class addRecipe_New extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         List<Fragment> fragments = getSupportFragmentManager().getFragments();
-        if (fragments != null) {
-            for (Fragment fragment : fragments) {
-                fragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
-            }
+        for (Fragment fragment : fragments) {
+            fragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 
@@ -436,8 +434,8 @@ public class addRecipe_New extends AppCompatActivity {
      */
     private static class viewPagerAdapter extends FragmentPagerAdapter {
 
-        private List<Fragment> fragments = new ArrayList<>();
-        private List<String> fragmentsTitle = new ArrayList<>();
+        private final List<Fragment> fragments = new ArrayList<>();
+        private final List<String> fragmentsTitle = new ArrayList<>();
 
 
         public viewPagerAdapter(@NonNull FragmentManager fm, int behavior) {
