@@ -125,43 +125,37 @@ public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.My
             mContext.startActivity(newMsg);
         });
 
-        myHolder.shareImg.setOnClickListener(v -> {
+        myHolder.shareImg.setOnClickListener(v -> new Thread(() -> {
 
+            Intent shareRecipe = new Intent(Intent.ACTION_SEND);
+            shareRecipe.setType("image/*");
+            image = getUrltoBitMap(mData.get(i).getRecipePicture());
+            imageToSend  = getLocalBitmapUri(image);
+            File file = new File(Objects.requireNonNull(imageToSend.getPath()));
+            Uri uriToSend = FileProvider.getUriForFile(mContext, mContext.getApplicationContext().getPackageName()+".provider",file);
+            String ingredients = mData.get(i).getRecipeIngredients();
+            String recipeContent = mData.get(i).getRecipe();
+            shareRecipe.putExtra(Intent.EXTRA_SUBJECT,mData.get(i).getRecipeName());
+            String text =  mContext.getResources().getString(R.string.ingredients)+
+                    System.getProperty("line.separator")+
+                    System.getProperty("line.separator")+
+                    ingredients+
+                    System.getProperty("line.separator")+
+                    System.getProperty("line.separator")+
+                    mContext.getResources().getString(R.string.method)+
+                    System.getProperty("line.separator")+
+                    System.getProperty("line.separator")+
+                    recipeContent+
+                    System.getProperty("line.separator")+
+                    System.getProperty("line.separator")+
+                    "Shared from iFood app, look for the app on the Play Store!";
+            shareRecipe.putExtra(Intent.EXTRA_TEXT,text);
+            shareRecipe.putExtra(Intent.EXTRA_STREAM,uriToSend);
+            shareRecipe.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            shareRecipe.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            mContext.startActivity(Intent.createChooser(shareRecipe,"Share this Recipe via"));
 
-
-            new Thread(() -> {
-
-                Intent shareRecipe = new Intent(Intent.ACTION_SEND);
-                shareRecipe.setType("image/*");
-                image = getUrltoBitMap(mData.get(i).getRecipePicture());
-                imageToSend  = getLocalBitmapUri(image);
-                File file = new File(Objects.requireNonNull(imageToSend.getPath()));
-                Uri uriToSend = FileProvider.getUriForFile(mContext, mContext.getApplicationContext().getPackageName()+".provider",file);
-                String ingredients = mData.get(i).getRecipeIngredients();
-                String recipeContent = mData.get(i).getRecipe();
-                shareRecipe.putExtra(Intent.EXTRA_SUBJECT,mData.get(i).getRecipeName());
-                String text =  mContext.getResources().getString(R.string.ingredients)+
-                        System.getProperty("line.separator")+
-                        System.getProperty("line.separator")+
-                        ingredients+
-                        System.getProperty("line.separator")+
-                        System.getProperty("line.separator")+
-                        mContext.getResources().getString(R.string.method)+
-                        System.getProperty("line.separator")+
-                        System.getProperty("line.separator")+
-                        recipeContent+
-                        System.getProperty("line.separator")+
-                        System.getProperty("line.separator")+
-                        "Shared from iFood app, look for the app on the Play Store!";
-                shareRecipe.putExtra(Intent.EXTRA_TEXT,text);
-                shareRecipe.putExtra(Intent.EXTRA_STREAM,uriToSend);
-                shareRecipe.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                shareRecipe.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                mContext.startActivity(Intent.createChooser(shareRecipe,"Share this Recipe via"));
-
-            }).start();
-
-        });
+        }).start());
         sharedPreferences = mContext.getSharedPreferences("favRecipes",MODE_PRIVATE);
         if(checkFavPref(mData.get(i).getId())){
             myHolder.likeImg.setColorFilter(Color.RED);
@@ -170,7 +164,9 @@ public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.My
         }
         myHolder.likeImg.setOnClickListener(v -> {
             Log.w("TAG","likeImg clicked");
-            addFav(userName,mData.get(i),i);
+            addFav(userName,mData.get(i));
+
+
             if(!checkFavPref(mData.get(i).getId())){
                 myHolder.likeImg.setColorFilter(Color.RED);
                // notifyItemChanged(myHolder.getAdapterPosition());
@@ -187,9 +183,9 @@ public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.My
     public int getItemCount() {
         return mData.size();
     }
-    private void addFav(String userName,Recipes recipe,int index){
+    private void addFav(String userName,Recipes recipe){
         isExists = false;
-        Log.w("addFav","addFav called");
+        //Log.w("addFav","addFav called");
         DatabaseReference Fav_ref = FirebaseDatabase.getInstance().getReference().child("Favorites");
         Fav_ref.child(userName).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -201,7 +197,7 @@ public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.My
                         Log.w("addFav","addFav3");
                         // remove from fav list - clicked on like the second time
                         isExists = true;
-                         Log.w("TAG", "isExists:" + isExists);
+                         Log.w("TAG", "isExists:" + true);
                         break;
                     }
 
@@ -341,7 +337,7 @@ public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.My
 
     public static class MyHolder extends RecyclerView.ViewHolder {
 
-        TextView recipeTitle,card_like,card_share,card_msg;
+        TextView recipeTitle;
         CardView cardView;
         ImageView img_recipe,likeImg,msgImg,shareImg;
 
@@ -356,9 +352,6 @@ public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.My
             likeImg = itemView.findViewById(R.id.likeImg);
             msgImg = itemView.findViewById(R.id.msgImg);
             shareImg = itemView.findViewById(R.id.shareImg);
-          //  card_like = itemView.findViewById(R.id.card_like);
-          //  card_msg = itemView.findViewById(R.id.card_msg);
-          //  card_share = itemView.findViewById(R.id.card_share);
 
 
 

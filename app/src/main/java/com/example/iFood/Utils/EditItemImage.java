@@ -35,7 +35,7 @@ public class EditItemImage {
     public static String mPath;
     private File tempFile;
 
-    private Context mContext;
+    private final Context mContext;
 
     public EditItemImage(Context context) {
         mContext = context;
