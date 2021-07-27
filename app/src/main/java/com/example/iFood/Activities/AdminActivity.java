@@ -93,7 +93,7 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
         progressDialog = new ProgressDialog(AdminActivity.this);
 
         setVariables();
-        setCurrentDateonOpen();
+        setCurrentDateOpen();
 
         // onClick Listeners
         btnSearch.setOnClickListener(v -> {
@@ -452,7 +452,7 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
     /**
      * Convert Date to Text.
      *
-     * @param v gets the onClickListner that was clicked
+     * @param v gets the onClickListener that was clicked
      */
     @Override
     public void onClick(View v) {
@@ -591,7 +591,7 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
     /**
      * Replace the dates in the options with the current date.
      */
-    private void setCurrentDateonOpen() {
+    private void setCurrentDateOpen() {
         Calendar c = Calendar.getInstance();
         int currentYear = c.get(Calendar.YEAR);
         int currentMonth = c.get(Calendar.MONTH);

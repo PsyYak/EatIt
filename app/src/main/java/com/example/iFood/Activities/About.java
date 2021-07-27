@@ -114,7 +114,7 @@ public class About extends AppCompatActivity {
      */
     private void openWhatsApp() {
         String smsNumber = "972546613551";
-        boolean isWhatsAppInstalled = whatsAppInstalledOrNot("com.whatsapp");
+        boolean isWhatsAppInstalled = whatsAppInstalledOrNot();
         if (isWhatsAppInstalled) {
 
             Intent sendIntent = new Intent("android.intent.action.MAIN");
@@ -133,14 +133,13 @@ public class About extends AppCompatActivity {
 
     /**
      * Functions check if WhatsApp installed or not.
-     * @param uri represents the WhatsApp package on the device itself
      * @return true if WhatsApp installed, false if not
      */
-    private boolean whatsAppInstalledOrNot(String uri) {
+    private boolean whatsAppInstalledOrNot() {
         PackageManager pm = getPackageManager();
         boolean app_installed = false;
         try {
-            pm.getPackageInfo(uri, PackageManager.GET_ACTIVITIES);
+            pm.getPackageInfo("com.whatsapp", PackageManager.GET_ACTIVITIES);
             app_installed = true;
         } catch (PackageManager.NameNotFoundException e) {
             Log.w("TAG","Exception :"+e.getMessage());

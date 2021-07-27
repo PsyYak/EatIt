@@ -92,7 +92,7 @@ public class FavoriteRecipes extends AppCompatActivity {
         getFavListbyUser();
 
 
-        // Check if user have nothing in his favorites, if so, pop up Dialog to move him to search.
+
 
 
     } // onCreate ends

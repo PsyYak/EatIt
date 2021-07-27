@@ -9,10 +9,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.iFood.Classes.Message;
 import com.example.iFood.Classes.Users;
 import com.example.iFood.Notification.APIService;
@@ -20,11 +18,8 @@ import com.example.iFood.Notification.Client;
 import com.example.iFood.Notification.Data;
 import com.example.iFood.Notification.MyResponse;
 import com.example.iFood.Notification.NotificationSender;
-import com.example.iFood.Notification.Token;
 import com.example.iFood.R;
 import com.example.iFood.Utils.ConnectionBCR;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,12 +27,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Objects;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -227,7 +219,7 @@ public class SendMessage extends AppCompatActivity {
         NotificationSender sender = new NotificationSender(data, usertoken);
         apiService.sendNotification(sender).enqueue(new Callback<MyResponse>() {
             @Override
-            public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
+            public void onResponse(@NonNull Call<MyResponse> call, @NonNull Response<MyResponse> response) {
                 if (response.code() == 200) {
                     //Log.w("TAG","code:"+response.code());
                     //Log.w("TAG","body:"+response.body().success);
@@ -239,7 +231,7 @@ public class SendMessage extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<MyResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<MyResponse> call, Throwable t) {
                 Log.w("TAG", "Error:" + t.getMessage());
             }
         });

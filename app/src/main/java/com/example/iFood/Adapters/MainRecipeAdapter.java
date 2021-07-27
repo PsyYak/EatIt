@@ -117,7 +117,7 @@ public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.My
         });
 
         myHolder.msgImg.setOnClickListener(v -> {
-            Intent newMsg = new Intent(((Activity) mContext), SendMessage.class);
+            Intent newMsg = new Intent(mContext, SendMessage.class);
             newMsg.putExtra("username",userName);
             newMsg.putExtra("activity",activity);
             newMsg.putExtra("To User",mData.get(i).getAddedBy());
@@ -211,13 +211,13 @@ public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.My
                     //Log.w("TAG","Going to add to fav!");
                     Fav_ref.child(userName).child(recipe.getId()).setValue(recipe);
                     addToList(recipe.getId());
-                    Toast.makeText(((Activity) mContext),"Added to favorites!",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext,"Added to favorites!",Toast.LENGTH_SHORT).show();
 
                 }else{
                     Log.w("addFav","addFav5");
                     Fav_ref.child(userName).child(recipe.getId()).removeValue();
                     removeFromList(recipe.getId());
-                    Toast.makeText(((Activity) mContext), "Recipe removed from favorites!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "Recipe removed from favorites!", Toast.LENGTH_SHORT).show();
 
                 }
             }
