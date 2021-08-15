@@ -1,6 +1,7 @@
 package com.example.iFood.Adapters;
 
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -70,8 +71,9 @@ public class MyRecipesAdapter extends RecyclerView.Adapter<MyRecipesAdapter.MyHo
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final MyHolder myHolder, final int i) {
+    public void onBindViewHolder(@NonNull final MyHolder myHolder, @SuppressLint("RecyclerView") final int i) {
         Intent  intent = ((Activity) mContext).getIntent();
+
         userName = intent.getStringExtra("username");
         userRole = intent.getStringExtra("userRole");
         check = String.valueOf(mData.get(i).isApproved());
