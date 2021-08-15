@@ -221,8 +221,10 @@ public class SendMessage extends AppCompatActivity {
             @Override
             public void onResponse(@NonNull Call<MyResponse> call, @NonNull Response<MyResponse> response) {
                 if (response.code() == 200) {
-                    //Log.w("TAG","code:"+response.code());
-                    //Log.w("TAG","body:"+response.body().success);
+                    /*
+                    Log.w("TAG","code:"+response.code());
+                    Log.w("TAG","body:"+response.body().success);
+                    */
                     assert response.body() != null;
                     if (response.body().success != 1) {
                         Toast.makeText(SendMessage.this, "Failed ", Toast.LENGTH_LONG).show();
@@ -231,7 +233,7 @@ public class SendMessage extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(@NonNull Call<MyResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<MyResponse> call, @NonNull Throwable t) {
                 Log.w("TAG", "Error:" + t.getMessage());
             }
         });
