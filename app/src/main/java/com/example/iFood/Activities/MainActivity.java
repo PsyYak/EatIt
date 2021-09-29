@@ -197,18 +197,15 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void UpdateToken() {
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
-            @Override
-            public void onComplete(@NonNull Task<String> task) {
-                if(!task.isSuccessful()){
-                    Log.w("MainActivity","Fetching FCM registration token failed", task.getException());
 
-                }else {
-                    String newToken = task.getResult();
-                    Token token = new Token(newToken);
-                    FirebaseDatabase.getInstance().getReference("Tokens").child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).setValue(token);
-                }
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+            if(!task.isSuccessful()){
+                Log.w("MainActivity","Fetching FCM registration token failed", task.getException());
+
+            }else {
+                String newToken = task.getResult();
+                Token token = new Token(newToken);
+                FirebaseDatabase.getInstance().getReference("Tokens").child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).setValue(token);
             }
         });
     }
@@ -238,6 +235,7 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                     // Call function to post all the recipes
                                     refresh_lv();
+
                                 }
 
                             }

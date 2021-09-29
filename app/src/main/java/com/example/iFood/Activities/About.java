@@ -118,11 +118,12 @@ public class About extends AppCompatActivity {
         if (isWhatsAppInstalled) {
 
             Intent sendIntent = new Intent("android.intent.action.MAIN");
-            sendIntent.setComponent(new ComponentName("com.whatsapp", "com.whatsapp.Conversation"));
+            sendIntent.setComponent(new ComponentName("com.whatsapp", "com.whatsapp.Conversation")); // to open the conversation with the number
             sendIntent.putExtra("jid", PhoneNumberUtils.stripSeparators(smsNumber) + "@s.whatsapp.net");//phone number without "+" prefix
 
             startActivity(sendIntent);
         } else {
+            // if not found prompt user to download WhatsApp from PlayStore
             Uri uri = Uri.parse("market://details?id=com.whatsapp");
             Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
             Toast.makeText(this, "WhatsApp not Installed",

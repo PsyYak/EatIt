@@ -236,7 +236,7 @@ public class SignUpActivity extends AppCompatActivity {
                         imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                         final byte[] data2 = baos.toByteArray();
                         final UploadTask uploadTask = storageRef.child("Users_Profiles").child(Username).putBytes(data2);
-                        // close onSuccess mehtod
+                        // close onSuccess method
                         uploadTask.addOnFailureListener(exception -> {
                             // Handle unsuccessful uploads
                         }).addOnSuccessListener(taskSnapshot -> {

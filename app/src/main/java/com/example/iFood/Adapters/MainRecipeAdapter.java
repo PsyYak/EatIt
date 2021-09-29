@@ -85,6 +85,7 @@ public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.My
 
     @Override
     public void onBindViewHolder(@NonNull final MyHolder myHolder, final int i) {
+
         Intent  intent = ((Activity) mContext).getIntent();
         userName = intent.getStringExtra("username");
         userRole = intent.getStringExtra("userRole");
@@ -304,7 +305,7 @@ public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.My
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString("recipeID", newJson);
             editor.apply();
-            editor.commit();
+
         }
 
     }
@@ -328,7 +329,7 @@ public class MainRecipeAdapter extends RecyclerView.Adapter<MainRecipeAdapter.My
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString("recipeID", newJson);
             editor.apply();
-            editor.commit();
+
 
         }
 
