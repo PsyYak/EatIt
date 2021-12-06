@@ -145,13 +145,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyHolder
      * after the user viewed the message itself.
      */
     public void changeMsgState(){
-        Log.w("TAG","Before messageRef");
+        //Log.w("TAG","Before messageRef");
         messagesRef.orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Log.w("in func","Changed");
+                //Log.w("in func","Changed");
                 messagesRef.child(userName).child(msgID).child("isRead").setValue("true");
-                Log.w("TAG2","isRead:"+messagesRef.child(userName).child(msgID).child("read").toString());
+               // Log.w("TAG2","isRead:"+messagesRef.child(userName).child(msgID).child("read").toString());
             }
 
             @Override

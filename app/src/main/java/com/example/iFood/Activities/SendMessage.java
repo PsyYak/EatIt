@@ -1,6 +1,9 @@
 package com.example.iFood.Activities;
 
 import android.app.ProgressDialog;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.app.job.JobWorkItem;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
@@ -10,6 +13,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.iFood.Classes.Message;
 import com.example.iFood.Classes.Users;
@@ -29,6 +33,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -221,11 +226,7 @@ public class SendMessage extends AppCompatActivity {
             @Override
             public void onResponse(@NonNull Call<MyResponse> call, @NonNull Response<MyResponse> response) {
                 if (response.code() == 200) {
-                    /*
-                    Log.w("TAG","code:"+response.code());
-                    Log.w("TAG","body:"+response.body().success);
-                    */
-                    assert response.body() != null;
+                     assert response.body() != null;
                     if (response.body().success != 1) {
                         Toast.makeText(SendMessage.this, "Failed ", Toast.LENGTH_LONG).show();
                     }

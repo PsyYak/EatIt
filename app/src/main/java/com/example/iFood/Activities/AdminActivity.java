@@ -140,17 +140,11 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
                         Users u = ds.getValue(Users.class);
                         assert u != null;
                         userTime = (Long) u.timestamp;
-                        //   @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new SimpleDateFormat(getString(R.string.date_format));
-                        //   String c = simpleDateFormat.format(userTime);
-                        //Log.d("TAG","user date: "+c);
                         Range<Long> timeRange = Range.create(from.getTime(),
                                 to.getTime());
                         if (timeRange.contains(userTime)) {
-
-                            //   c = simpleDateFormat.format(userTime);
-                            //Log.d("TAG","Found user match to date: "+c);
                             userCount++;
-                            //   Log.d("TAG","User count is:"+userCount);
+
                         }
                     }
                     if (userCount > 0) {
@@ -180,17 +174,11 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
                             assert rec != null;
 
                             recipeTime = (Long) rec.getTimestamp();
-                            //  @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new SimpleDateFormat(getString(R.string.date_format));
-                            //String c = simpleDateFormat.format(recipeTime);
-                            // Log.d("TAG"," recipe date: "+c);
                             Range<Long> recipeTimeRange = Range.create(from.getTime(),
                                     to.getTime());
                             if (recipeTimeRange.contains(recipeTime)) {
-
-                                //  c = simpleDateFormat.format(recipeTime);
-                                //  Log.d("TAG","Found recipe match to date: "+c);
                                 recipeCount++;
-                                //Log.d("TAG","Recipe count is:"+recipeCount);
+
                             }
                         }
 
@@ -347,21 +335,6 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
 
 
                             }
-                            /*
-                            if (rejectedRecipe.rejectReasons.contains("Spam")) spam++;
-                            if (rejectedRecipe.rejectReasons.contains("Missing info"))missingInfo++;
-                            if (rejectedRecipe.rejectReasons.contains("Bad Picture")) badPicture++;
-                            if (rejectedRecipe.rejectReasons.contains("Bad Desc")) badDesc++;
-                            if (rejectedRecipe.rejectReasons.contains("Bad Title")) badTitle++;
-                            if (rejectedRecipe.rejectReasons.contains("Missing Ingredients"))missingIngredients++;
-                            if (!rejectedRecipe.rejectReasons.contains("Spam") &&
-                                    !rejectedRecipe.rejectReasons.contains("Missing info") &&
-                                    !rejectedRecipe.rejectReasons.contains("Bad Picture") &&
-                                    !rejectedRecipe.rejectReasons.contains("Bad Title") &&
-                                    !rejectedRecipe.rejectReasons.contains("Missing Ingredients"))
-                                other++;
-
-                             */
                         }
 
 

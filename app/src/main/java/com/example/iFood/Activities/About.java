@@ -29,7 +29,7 @@ import java.util.Locale;
 public class About extends AppCompatActivity {
     ConnectionBCR bcr = new ConnectionBCR();
     String formattedDate;
-    String url = "https://paypal.me/YakirMalka?locale.x=en_US";
+    String url = "paypal.me/Yakir262";
     private ImageView donate,sendEmail,sendWhatsApp;
     private TextView tvDate;
 
