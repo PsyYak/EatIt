@@ -37,24 +37,32 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.Objects;
 
 /**
- *
  * This is our first screen that responsible of the users Login.
  * This screen also provides the client the ability to create himself a user by pressing the "Sign-up" button.
  */
 public class LoginActivity extends AppCompatActivity {
+    private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
     ConnectionBCR bcr = new ConnectionBCR();
     SharedPreferences pref;
     String userRole;
     Button btnSignIn;
     ProgressDialog progressDialog;
     Dialog myDialog;
-    TextView reset_password,resend_authEmail,signupText;
+    TextView reset_password, resend_authEmail, signupText;
     SwitchCompat rmbMe;
-    private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
     Dialog sendEmailDialog;
-    EditText etUser,etPass;
+    EditText etUser, etPass;
     Users u;
 
+    /**
+     * Check if the Email address is valid with the expression of example@.something.com
+     *
+     * @param target Gets Email string.
+     * @return if Email address is valid or not.
+     */
+    public static boolean isValidEmail(CharSequence target) {
+        return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +72,7 @@ public class LoginActivity extends AppCompatActivity {
         final Intent intent = new Intent(this, MyFireBaseMessagingService.class);
         startService(intent);
 
-        if(getSupportActionBar() != null){
+        if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
 
@@ -72,13 +80,13 @@ public class LoginActivity extends AppCompatActivity {
         setVars();
 
         // Check if the user did asked to be remembered last time he logged in the Application
-        pref = getSharedPreferences("userData",MODE_PRIVATE);
-        if(pref.contains("username")&&pref.contains("userRole")){
+        pref = getSharedPreferences("userData", MODE_PRIVATE);
+        if (pref.contains("username") && pref.contains("userRole")) {
 
             Intent main = new Intent(LoginActivity.this, MainActivity.class);
-            main.putExtra("username", pref.getString("username",null));
-            main.putExtra("userRole",pref.getString("userRole",null));
-          //  Log.i("userRole","role in shared pref is:"+pref.getString("userRole",null));
+            main.putExtra("username", pref.getString("username", null));
+            main.putExtra("userRole", pref.getString("userRole", null));
+            //  Log.i("userRole","role in shared pref is:"+pref.getString("userRole",null));
             startActivity(main);
             finish();
         }
@@ -92,20 +100,19 @@ public class LoginActivity extends AppCompatActivity {
             // Getting user from Firebase
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             // If user is null meaning he never signed up before in this device
-            if(user!= null) {
-                Log.w("TAG","User verified:"+user.isEmailVerified());
+            if (user != null) {
+                Log.w("TAG", "User verified:" + user.isEmailVerified());
                 if (!user.isEmailVerified()) {
                     Toast.makeText(LoginActivity.this, "Email Sent", Toast.LENGTH_SHORT).show();
                     user.sendEmailVerification();
-                }
-                else {
+                } else {
                     Toast.makeText(LoginActivity.this, R.string.already_verified, Toast.LENGTH_SHORT).show();
                 }
-            }else{
+            } else {
                 // Bring up a dialog to the user to enter his details
                 // Declare variables
-                Button input_ok,input_cancel;
-                TextView emailInput,pwdInput;
+                Button input_ok, input_cancel;
+                TextView emailInput, pwdInput;
                 sendEmailDialog = new Dialog(LoginActivity.this);
                 // Set Layout to Dialog
                 sendEmailDialog.setContentView(R.layout.resend_email_dialog);
@@ -120,11 +127,11 @@ public class LoginActivity extends AppCompatActivity {
                 input_cancel.setOnClickListener(v13 -> sendEmailDialog.dismiss());
                 input_ok.setOnClickListener(v14 -> {
                     // if one of the fields is empty, promote a toast to the user
-                    if(emailInput.getText().toString().isEmpty() || pwdInput.getText().toString().isEmpty()){
+                    if (emailInput.getText().toString().isEmpty() || pwdInput.getText().toString().isEmpty()) {
                         Toast.makeText(LoginActivity.this, "Please enter your email and password", Toast.LENGTH_SHORT).show();
                     }
                     // Check if the give email is actually registered in our DB
-                   else {
+                    else {
                         mAuth.fetchSignInMethodsForEmail(emailInput.getText().toString()).addOnCompleteListener(task -> {
                             // if there is values, mean user registered this email to our DB before, so we could make a sign in and send a verification email
                             if (!Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getSignInMethods()).isEmpty()) {
@@ -138,7 +145,7 @@ public class LoginActivity extends AppCompatActivity {
                                     sendEmailDialog.dismiss();
                                 }).addOnFailureListener(e ->
                                         //Log.w("TAG", "Exception:" + e.getMessage()));
-                                Toast.makeText(LoginActivity.this, "Wrong Email/Password", Toast.LENGTH_SHORT).show());
+                                        Toast.makeText(LoginActivity.this, "Wrong Email/Password", Toast.LENGTH_SHORT).show());
                             } else {
                                 Toast.makeText(LoginActivity.this, "No user found with this email address", Toast.LENGTH_SHORT).show();
                                 sendEmailDialog.dismiss();
@@ -160,73 +167,68 @@ public class LoginActivity extends AppCompatActivity {
         reset_password.setOnClickListener(v -> {
 
             if (etUser.getText().toString().isEmpty() || !isValidEmail(etUser.getText().toString())) {
-                    etUser.setError("Must enter a valid email address");
-                    etUser.requestFocus();
-            } else{
-            // Declaring Dialog variables
-            Button confirm, cancel;
-            TextView userEmail;
-            // Attaching variables to XML layout
-            myDialog = new Dialog(LoginActivity.this);
-            myDialog.setContentView(R.layout.reset_password_dialog);
-            myDialog.setTitle(R.string.reset_password);
-            confirm = myDialog.findViewById(R.id.btnConfirm);
-            cancel = myDialog.findViewById(R.id.btnCancel);
-            userEmail = myDialog.findViewById(R.id.userEmailtoSend);
-            userEmail.setText(etUser.getText().toString());
-            // onClickLisnters
-            confirm.setOnClickListener(v1 -> {
-                if (!userEmail.getText().toString().isEmpty() && isValidEmail(userEmail.getText().toString())) {
-                    FirebaseAuth.getInstance().sendPasswordResetEmail(userEmail.getText().toString())
-                            .addOnCompleteListener(task -> {
-                                if (task.isSuccessful()) {
-                                    //Log.d("TAG", "Email Sent.");
-                                    Toast.makeText(LoginActivity.this, R.string.psd_link_sent, Toast.LENGTH_SHORT).show();
-                                } else {
-                                    Toast.makeText(LoginActivity.this, R.string.cant_send_email, Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                } else {
-                    Toast.makeText(LoginActivity.this, "Please enter a valid Email address",
-                            Toast.LENGTH_SHORT).show();
+                etUser.setError("Must enter a valid email address");
+                etUser.requestFocus();
+            } else {
+                // Declaring Dialog variables
+                Button confirm, cancel;
+                TextView userEmail;
+                // Attaching variables to XML layout
+                myDialog = new Dialog(LoginActivity.this);
+                myDialog.setContentView(R.layout.reset_password_dialog);
+                myDialog.setTitle(R.string.reset_password);
+                confirm = myDialog.findViewById(R.id.btnConfirm);
+                cancel = myDialog.findViewById(R.id.btnCancel);
+                userEmail = myDialog.findViewById(R.id.userEmailtoSend);
+                userEmail.setText(etUser.getText().toString());
+                // onClickLisnters
+                confirm.setOnClickListener(v1 -> {
+                    if (!userEmail.getText().toString().isEmpty() && isValidEmail(userEmail.getText().toString())) {
+                        FirebaseAuth.getInstance().sendPasswordResetEmail(userEmail.getText().toString())
+                                .addOnCompleteListener(task -> {
+                                    if (task.isSuccessful()) {
+                                        //Log.d("TAG", "Email Sent.");
+                                        Toast.makeText(LoginActivity.this, R.string.psd_link_sent, Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(LoginActivity.this, R.string.cant_send_email, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                    } else {
+                        Toast.makeText(LoginActivity.this, "Please enter a valid Email address",
+                                Toast.LENGTH_SHORT).show();
 
-                }
-            });
-            cancel.setOnClickListener(v12 -> myDialog.dismiss());
-            myDialog.show();
+                    }
+                });
+                cancel.setOnClickListener(v12 -> myDialog.dismiss());
+                myDialog.show();
 
-            // Expand the width of dialog to maximum screen width
-            Window window = myDialog.getWindow();
-            // Make sure the given window is not null
-            assert window != null;
-            window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        }
+                // Expand the width of dialog to maximum screen width
+                Window window = myDialog.getWindow();
+                // Make sure the given window is not null
+                assert window != null;
+                window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            }
 
         });
         btnSignIn.setOnClickListener(v -> {
 
             String email = etUser.getText().toString();
             String password = etPass.getText().toString();
-            if(email.isEmpty()||password.isEmpty()){
-                Toast.makeText(LoginActivity.this, R.string.enter_emailpassword,Toast.LENGTH_SHORT).show();
-            }else {
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(LoginActivity.this, R.string.enter_emailpassword, Toast.LENGTH_SHORT).show();
+            } else {
                 progressDialog = new ProgressDialog(this);
                 progressDialog.setMessage(getString(R.string.connecting_login));
                 progressDialog.show();
                 progressDialog.setCanceledOnTouchOutside(false);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        initSignIn(email,password);
-                    }
-                });
+                runOnUiThread(() -> initSignIn(email, password));
 
 
             }
         });
     } // onCreate ends
 
-    private void initSignIn(String email,String password) {
+    private void initSignIn(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -307,47 +309,46 @@ public class LoginActivity extends AppCompatActivity {
         resend_authEmail = findViewById(R.id.resendVerificationEmail);
     }
 
-
     /**
      * This function responsible for saving the user data if he wish to so he won't need to reenter his login
      * information next time he open the App
      */
-    public void saveData(){
-        SharedPreferences.Editor saveInfo = getSharedPreferences("userData",MODE_PRIVATE).edit();
-        saveInfo.putString("username",u.getUsername());
-        saveInfo.putString("userRole",userRole);
+    public void saveData() {
+        SharedPreferences.Editor saveInfo = getSharedPreferences("userData", MODE_PRIVATE).edit();
+        saveInfo.putString("username", u.getUsername());
+        saveInfo.putString("userRole", userRole);
         saveInfo.apply();
         saveInfo.commit();
     }
 
-     public void onBackPressed(){
-         //Log.d("TAG", "onBackPressed");
-         AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
-         builder.setMessage("Are you sure you want to Exit?");
-         builder.setNegativeButton(R.string.no, (dialog, which) -> dialog.cancel());
-         builder.setPositiveButton(R.string.yes, (dialog, which) -> finish());
+    public void onBackPressed() {
+        //Log.d("TAG", "onBackPressed");
+        AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+        builder.setMessage("Are you sure you want to Exit?");
+        builder.setNegativeButton(R.string.no, (dialog, which) -> dialog.cancel());
+        builder.setPositiveButton(R.string.yes, (dialog, which) -> finish());
 
-         final AlertDialog alertExit = builder.create();
-         alertExit.setOnShowListener(dialog -> {
-             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                     LinearLayout.LayoutParams.WRAP_CONTENT,
-                     LinearLayout.LayoutParams.WRAP_CONTENT
-             );
-             params.setMargins(20,0,0,0);
-             Button button = alertExit.getButton(AlertDialog.BUTTON_POSITIVE);
-             button.setLayoutParams(params);
-         });
+        final AlertDialog alertExit = builder.create();
+        alertExit.setOnShowListener(dialog -> {
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            params.setMargins(20, 0, 0, 0);
+            Button button = alertExit.getButton(AlertDialog.BUTTON_POSITIVE);
+            button.setLayoutParams(params);
+        });
 
-         alertExit.show();
-     }
+        alertExit.show();
+    }
 
-     /**
+    /**
      * Register our Broadcast Receiver when opening the app.
      */
     protected void onStart() {
         super.onStart();
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(bcr,filter);
+        registerReceiver(bcr, filter);
     }
 
     /**
@@ -357,14 +358,5 @@ public class LoginActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         unregisterReceiver(bcr);
-    }
-
-    /**
-     * Check if the Email address is valid with the expression of example@.something.com
-     * @param target Gets Email string.
-     * @return if Email address is valid or not.
-     */
-    public static boolean isValidEmail(CharSequence target) {
-        return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
     }
 }

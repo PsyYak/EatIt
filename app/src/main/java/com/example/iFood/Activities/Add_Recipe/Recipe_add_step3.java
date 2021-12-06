@@ -93,13 +93,9 @@ public class Recipe_add_step3 extends Fragment {
         Context mContext = Objects.requireNonNull(getContext()).getApplicationContext();
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.CAMERA)) {
-                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CAMERA}, 1);
-                return false;
-            } else {
-                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CAMERA}, 1);
-                return false;
-            }
+            assert activity != null;
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CAMERA}, 1);
+            return false;
         } else return true;
     }
     @Override

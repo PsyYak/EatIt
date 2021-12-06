@@ -1,20 +1,16 @@
 package com.example.iFood.Activities;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.iFood.Classes.Recipes;
-import com.example.iFood.Classes.RejectedRecipe;
 import com.example.iFood.R;
 import com.example.iFood.Utils.ConnectionBCR;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -33,12 +29,13 @@ public class RejectedRecipeActivity extends AppCompatActivity {
     TextView mRecipeName, mRecipeMethodTitle, rejectDate, rejectReasons, rejectedBy;
     ExpandableTextView mRecipeIngredients, mRecipe;
     // Buttons
-    FloatingActionButton btnApprove,btnDismiss;
+    FloatingActionButton btnApprove, btnDismiss;
     // Intent Information
-    String userName,userRole,addedBy,userRejected,recipeName,recipeIngredients,recipeMethodTitle,recipeContent,recipeID,recipeImage,removeDate,rejectReason,recipe_Type,recipeFeature;
+    String userName, userRole, addedBy, userRejected, recipeName, recipeIngredients, recipeMethodTitle, recipeContent, recipeID, recipeImage, removeDate, rejectReason, recipe_Type, recipeFeature;
     // Database
     DatabaseReference deleted_list = FirebaseDatabase.getInstance().getReference().child("Deleted List");
     DatabaseReference recipesRef = FirebaseDatabase.getInstance().getReference().child("Recipes");
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,26 +50,26 @@ public class RejectedRecipeActivity extends AppCompatActivity {
 
         ///////////// Listeners
         btnDismiss.setOnClickListener(v -> {
-           // Log.w("TAG","Clicked on dismiss");
+            // Log.w("TAG","Clicked on dismiss");
             // If Admin clicked dismiss remove record from DB completely
-                        String storageUrl = recipeImage;
-                        StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(storageUrl);
-                        storageReference.delete().addOnSuccessListener(aVoid -> {
-                            // File deleted successfully so now remove from DB
-                               deleted_list.child(userRejected).child(recipeID).removeValue();
-                               finish();
-                        }).addOnFailureListener(exception -> {
-                            // Uh-oh, an error occurred! toast message to user
-                            Toast.makeText(RejectedRecipeActivity.this, "Please try again", Toast.LENGTH_SHORT).show();
-                            Log.w("TAG","Error: "+exception.getMessage());
-                        });
+            String storageUrl = recipeImage;
+            StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(storageUrl);
+            storageReference.delete().addOnSuccessListener(aVoid -> {
+                // File deleted successfully so now remove from DB
+                deleted_list.child(userRejected).child(recipeID).removeValue();
+                finish();
+            }).addOnFailureListener(exception -> {
+                // Uh-oh, an error occurred! toast message to user
+                Toast.makeText(RejectedRecipeActivity.this, "Please try again", Toast.LENGTH_SHORT).show();
+                Log.w("TAG", "Error: " + exception.getMessage());
+            });
 
         });
 
         btnApprove.setOnClickListener(v -> {
             // If Admin clicked Approve, add to general recipe list and set to approved
             Recipes rec;
-            rec = new Recipes(recipeName,recipeIngredients,recipeMethodTitle,recipeContent,recipeImage,recipeID,addedBy,recipe_Type,recipeFeature);
+            rec = new Recipes(recipeName, recipeIngredients, recipeMethodTitle, recipeContent, recipeImage, recipeID, addedBy, recipe_Type, recipeFeature);
             rec.setApproved(true);
             recipesRef.child(addedBy).child(recipeID).setValue(rec);
             deleted_list.child(userRejected).child(recipeID).removeValue();
@@ -97,7 +94,7 @@ public class RejectedRecipeActivity extends AppCompatActivity {
         removeDate = intent.getStringExtra("removeDate");
         rejectReason = intent.getStringExtra("rejectReasons");
         userRejected = intent.getStringExtra("rejectedBy");
-        time = intent.getLongExtra("time",0);
+        time = intent.getLongExtra("time", 0);
 
 
     }
@@ -139,8 +136,9 @@ public class RejectedRecipeActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(bcr,filter);
+        registerReceiver(bcr, filter);
     }
+
     /**
      * Stop our Broadcast Receiver when the app is closed.
      */

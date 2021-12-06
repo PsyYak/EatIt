@@ -35,7 +35,7 @@ public class EditItemImage {
     public static String mPath;
     private File tempFile;
 
-    private Context mContext;
+    private final Context mContext;
 
     public EditItemImage(Context context) {
         mContext = context;
@@ -128,6 +128,7 @@ public class EditItemImage {
             if (takePictureIntent.resolveActivity(mContext.getPackageManager()) != null) {
                 try {
                     if(n.equals("ProfileActivity")) {
+
                         ((ProfileActivity) mContext).startActivityForResult(takePictureIntent, TAKE_PICTURE);
                     }
                     if(n.equals("EditRecipeActivity")){

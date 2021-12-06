@@ -1,5 +1,7 @@
 package com.example.iFood.Classes;
 
+import androidx.annotation.NonNull;
+
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.ServerValue;
 
@@ -62,6 +64,7 @@ public class Users {
         return (long) timestamp;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Users{" +

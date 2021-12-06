@@ -4,10 +4,7 @@ package com.example.iFood.Adapters;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -74,6 +71,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyHolder
         //////
         myHolder.msgTitle.setText(mData.get(i).getTitle());
         myHolder.userName.setText(mData.get(i).getFromUser());
+
         Picasso.get().load(mData.get(i).getUserImageUrl()).into(myHolder.userImg);
 
 
@@ -115,6 +113,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyHolder
 
     }
 
+
+
     @Override
     public int getItemCount() {
         return mData.size();
@@ -145,13 +145,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyHolder
      * after the user viewed the message itself.
      */
     public void changeMsgState(){
-        Log.w("TAG","Before messageRef");
+        //Log.w("TAG","Before messageRef");
         messagesRef.orderByKey().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Log.w("in func","Changed");
+                //Log.w("in func","Changed");
                 messagesRef.child(userName).child(msgID).child("isRead").setValue("true");
-                Log.w("TAG2","isRead:"+messagesRef.child(userName).child(msgID).child("read").toString());
+               // Log.w("TAG2","isRead:"+messagesRef.child(userName).child(msgID).child("read").toString());
             }
 
             @Override
@@ -160,16 +160,4 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyHolder
             }
         });
     }
-    /*
-    public Bitmap StringToBitMap(String encodedString) {
-        try {
-            byte[] encodeByte = Base64.decode(encodedString, Base64.DEFAULT);
-            Bitmap bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
-            return bitmap;
-        } catch (Exception e) {
-            e.getMessage();
-            return null;
-        }
-    }*/
-
 }

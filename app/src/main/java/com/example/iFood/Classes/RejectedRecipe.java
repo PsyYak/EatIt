@@ -1,5 +1,7 @@
 package com.example.iFood.Classes;
 
+import androidx.annotation.NonNull;
+
 public class RejectedRecipe {
 
     public String recipeID;
@@ -149,6 +151,7 @@ public class RejectedRecipe {
         this.rejectDate = rejectDate;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "RejectedRecipe{" +

@@ -1,5 +1,7 @@
 package com.example.iFood.Classes;
 
+import androidx.annotation.NonNull;
+
 /**
 
  * This class is the Message class
@@ -103,6 +105,7 @@ public class Message {
         isMarked = marked;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Message{" +

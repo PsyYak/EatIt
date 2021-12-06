@@ -12,7 +12,6 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -119,77 +118,72 @@ public class SignUpActivity extends AppCompatActivity {
                  //Log.w("TAG","Email:"+isValidEmail(Email)+",Phone:"+validateTelAndMobileNo(Phone));
                         if (checkPassword()) {
                             {
-                                runOnUiThread(new Runnable() {
+                                runOnUiThread(() -> ref.child(Username).addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
-                                    public void run() {
-                                        ref.child(Username).addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                                if (dataSnapshot.exists()) {
-                                                    // User name already exists.
-                                                          userExists();
-                                                } else {
-                                                    progressDialog.setMessage("Registering..");
-                                                    progressDialog.setCanceledOnTouchOutside(false);
-                                                    progressDialog.show();
-                                                    createUser();
-                                            /*
-                                            ref.orderByChild("Email").equalTo(Email).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                @Override
-                                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                                    if (dataSnapshot.exists()) {
-                                                        // Email already exists
-                                                        Toast.makeText(SignUpActivity.this, "Email already found in DB, try different Email", Toast.LENGTH_SHORT).show();
-                                                        etEmail.setText("");
-                                                        etPassword.setText("");
-                                                        etEmail.hasFocus();
-                                                    } else {
-                                                        progressDialog.setMessage("Registering..");
-                                                        progressDialog.show();
-                                                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                                        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                                                        final byte[] data2 = baos.toByteArray();
-                                                        final UploadTask uploadTask = storageRef.child("Users_Profiles").child(Username).putBytes(data2);
-                                                        uploadTask.addOnFailureListener(new OnFailureListener() {
-                                                            @Override
-                                                            public void onFailure(@NonNull Exception exception) {
-                                                                // Handle unsuccessful uploads
-                                                            }
-                                                        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                                            @Override
-                                                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                                                if (taskSnapshot.getMetadata() != null) {
-                                                                    if (taskSnapshot.getMetadata().getReference() != null) {
-                                                                        Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
-                                                                        result.addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                                                            @Override
-                                                                            public void onSuccess(Uri uri) {
-                                                                                picUrl = uri.toString();
-                                                                                Password = checkPass();
-                                                                                addUser(Username, Password, Fname, Phone, Lname, Email);
-                                                                                // Log.i("URL", "Image URL:" + picUrl);
-                                                                            }
-                                                                        });
-                                                                    } // close 2nd if
-                                                                } // close 1st if
-                                                            } // close onSuccess mehtod
-                                                        }); // close OnSuccessListener
-                                                    } // close else onDataChange
-                                                } // close  inner onDataChange
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.exists()) {
+                                            // User name already exists.
+                                                  userExists();
+                                        } else {
+                                            progressDialog.setMessage("Registering..");
+                                            progressDialog.setCanceledOnTouchOutside(false);
+                                            progressDialog.show();
+                                            createUser();
+                                    /*
+                                    ref.orderByChild("Email").equalTo(Email).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                            if (dataSnapshot.exists()) {
+                                                // Email already exists
+                                                Toast.makeText(SignUpActivity.this, "Email already found in DB, try different Email", Toast.LENGTH_SHORT).show();
+                                                etEmail.setText("");
+                                                etPassword.setText("");
+                                                etEmail.hasFocus();
+                                            } else {
+                                                progressDialog.setMessage("Registering..");
+                                                progressDialog.show();
+                                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                                imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                                                final byte[] data2 = baos.toByteArray();
+                                                final UploadTask uploadTask = storageRef.child("Users_Profiles").child(Username).putBytes(data2);
+                                                uploadTask.addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception exception) {
+                                                        // Handle unsuccessful uploads
+                                                    }
+                                                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                                    @Override
+                                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                                        if (taskSnapshot.getMetadata() != null) {
+                                                            if (taskSnapshot.getMetadata().getReference() != null) {
+                                                                Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
+                                                                result.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                                    @Override
+                                                                    public void onSuccess(Uri uri) {
+                                                                        picUrl = uri.toString();
+                                                                        Password = checkPass();
+                                                                        addUser(Username, Password, Fname, Phone, Lname, Email);
+                                                                        // Log.i("URL", "Image URL:" + picUrl);
+                                                                    }
+                                                                });
+                                                            } // close 2nd if
+                                                        } // close 1st if
+                                                    } // close onSuccess mehtod
+                                                }); // close OnSuccessListener
+                                            } // close else onDataChange
+                                        } // close  inner onDataChange
 
-                                                @Override
-                                                public void onCancelled(@NonNull DatabaseError databaseError) {
-                                                }
-                                            });*/
-                                                }
-                                            } // close onDataChange
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                                        }
+                                    });*/
+                                        }
+                                    } // close onDataChange
 
-                                            @Override
-                                            public void onCancelled(@NonNull DatabaseError databaseError) {
-                                            }
-                                        });
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
                                     }
-                                });
+                                }));
 
                             }
                         }else{
@@ -238,12 +232,11 @@ public class SignUpActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         uid = Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getUser()).getUid();
                         // Sign in success, update UI with the signed-in user's information
-
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                         final byte[] data2 = baos.toByteArray();
                         final UploadTask uploadTask = storageRef.child("Users_Profiles").child(Username).putBytes(data2);
-                        // close onSuccess mehtod
+                        // close onSuccess method
                         uploadTask.addOnFailureListener(exception -> {
                             // Handle unsuccessful uploads
                         }).addOnSuccessListener(taskSnapshot -> {
@@ -273,7 +266,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void userExists() {
-        Toast.makeText(SignUpActivity.this, "Username already found in DB, try different Username", Toast.LENGTH_SHORT).show();
+        Toast.makeText(SignUpActivity.this, "Username already exists, try different Username", Toast.LENGTH_SHORT).show();
         etUsername.setText("");
         etPassword.setText("");
         etUsername.requestFocus();

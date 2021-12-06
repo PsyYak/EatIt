@@ -29,7 +29,7 @@ import java.util.Locale;
 public class About extends AppCompatActivity {
     ConnectionBCR bcr = new ConnectionBCR();
     String formattedDate;
-    String url = "https://paypal.me/YakirMalka?locale.x=en_US";
+    String url = "paypal.me/Yakir262";
     private ImageView donate,sendEmail,sendWhatsApp;
     private TextView tvDate;
 
@@ -114,15 +114,16 @@ public class About extends AppCompatActivity {
      */
     private void openWhatsApp() {
         String smsNumber = "972546613551";
-        boolean isWhatsAppInstalled = whatsAppInstalledOrNot("com.whatsapp");
+        boolean isWhatsAppInstalled = whatsAppInstalledOrNot();
         if (isWhatsAppInstalled) {
 
             Intent sendIntent = new Intent("android.intent.action.MAIN");
-            sendIntent.setComponent(new ComponentName("com.whatsapp", "com.whatsapp.Conversation"));
+            sendIntent.setComponent(new ComponentName("com.whatsapp", "com.whatsapp.Conversation")); // to open the conversation with the number
             sendIntent.putExtra("jid", PhoneNumberUtils.stripSeparators(smsNumber) + "@s.whatsapp.net");//phone number without "+" prefix
 
             startActivity(sendIntent);
         } else {
+            // if not found prompt user to download WhatsApp from PlayStore
             Uri uri = Uri.parse("market://details?id=com.whatsapp");
             Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
             Toast.makeText(this, "WhatsApp not Installed",
@@ -133,14 +134,13 @@ public class About extends AppCompatActivity {
 
     /**
      * Functions check if WhatsApp installed or not.
-     * @param uri represents the WhatsApp package on the device itself
      * @return true if WhatsApp installed, false if not
      */
-    private boolean whatsAppInstalledOrNot(String uri) {
+    private boolean whatsAppInstalledOrNot() {
         PackageManager pm = getPackageManager();
         boolean app_installed = false;
         try {
-            pm.getPackageInfo(uri, PackageManager.GET_ACTIVITIES);
+            pm.getPackageInfo("com.whatsapp", PackageManager.GET_ACTIVITIES);
             app_installed = true;
         } catch (PackageManager.NameNotFoundException e) {
             Log.w("TAG","Exception :"+e.getMessage());

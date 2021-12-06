@@ -4,12 +4,14 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.util.Range;
 import android.view.Menu;
@@ -56,46 +58,50 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
     DatabaseReference refRecipes = FirebaseDatabase.getInstance().getReference().child("Recipes");
     DatabaseReference refUsers = FirebaseDatabase.getInstance().getReference().child("Users");
     DatabaseReference deleted_list = FirebaseDatabase.getInstance().getReference().child("Deleted List");
-    int userCount =0, recipeCount =0,userTotalCount=0,recipeTotalCount=0;
-    int spam=0,missingIngredients=0,badTitle=0,badPicture=0,missingInfo=0,badDesc=0,other=0;
+    int userCount = 0, recipeCount = 0, userTotalCount = 0, recipeTotalCount = 0;
+    int spam = 0, missingIngredients = 0, badTitle = 0, badPicture = 0, missingInfo = 0, badDesc = 0, other = 0;
     Random rnd = new Random();
     int color;
     // Button
     ImageButton btnSearch;
-    Button btnOk,btnDismiss;
+    Button btnOk, btnDismiss;
 
     // Date Variables
-    Date to,from;
-    long userTime,recipeTime,rejectRecipeTime;
+    Date to, from;
+    long userTime, recipeTime, rejectRecipeTime;
     int mYear, mMonth, mDay;
 
     // PieChart
-    PieChartView usersChart,recipesChart,chartTopMod,chartRejectReasons;
+    PieChartView usersChart, recipesChart, chartTopMod, chartRejectReasons;
     List<SliceValue> usersPieData = new ArrayList<>();
     List<SliceValue> recipesPieData = new ArrayList<>();
     List<SliceValue> topModPieData = new ArrayList<>();
     List<SliceValue> rejectReasonPieData = new ArrayList<>();
-    PieChartData usersPieChart,recipesPieChart,topModPieChart,rejectReasonPieChart;
+    PieChartData usersPieChart, recipesPieChart, topModPieChart, rejectReasonPieChart;
     // TextView
-    TextView fromDate,toDate;
+    TextView fromDate, toDate;
     // Broadcast
     ConnectionBCR bcr = new ConnectionBCR();
-
+    // Dialog
+    ProgressDialog progressDialog;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
-
+        progressDialog = new ProgressDialog(AdminActivity.this);
 
         setVariables();
-        setCurrentDateonOpen();
+        setCurrentDateOpen();
 
         // onClick Listeners
         btnSearch.setOnClickListener(v -> {
-            getUsersRecipesData();
-            getRejectData();
+            progressDialog.setCancelable(false);
+            progressDialog.setMessage("Fetching data, please wait..");
+            progressDialog.show();
+            new Handler().postDelayed(this::getUsersRecipesData, 3000);
+            new Handler().postDelayed(this::getRejectData, 3000);
         });
         // more onClick listeners with override their onClick method
         fromDate.setOnClickListener(this);
@@ -103,13 +109,13 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
     } // onCreate ends
 
     private void getUsersRecipesData() {
-        if(to==null || from==null){
+        if (to == null || from == null) {
 
             @SuppressLint("SimpleDateFormat") DateFormat formatter = new SimpleDateFormat(getString(R.string.date_format));
             try {
-                if(to==null) to = formatter.parse(toDate.getText().toString());
-                if(from==null)from = formatter.parse(toDate.getText().toString());
-                else{
+                if (to == null) to = formatter.parse(toDate.getText().toString());
+                if (from == null) from = formatter.parse(toDate.getText().toString());
+                else {
                     from = formatter.parse(toDate.getText().toString());
                     to = formatter.parse(toDate.getText().toString());
                 }
@@ -119,11 +125,9 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
                 e.printStackTrace();
             }
 
-        }
-        else if (to.getTime() < from.getTime()) {
-            Toast.makeText(AdminActivity.this,"Search credentials are not valid",Toast.LENGTH_SHORT).show();
-        }
-        else {
+        } else if (to.getTime() < from.getTime()) {
+            Toast.makeText(AdminActivity.this, "Search credentials are not valid", Toast.LENGTH_SHORT).show();
+        } else {
 
             usersPieData.clear();
             recipesPieData.clear();
@@ -132,31 +136,25 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                    for(DataSnapshot ds : snapshot.getChildren()){
+                    for (DataSnapshot ds : snapshot.getChildren()) {
                         Users u = ds.getValue(Users.class);
                         assert u != null;
-                        userTime = (Long)u.timestamp;
-                        //   @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new SimpleDateFormat(getString(R.string.date_format));
-                        //   String c = simpleDateFormat.format(userTime);
-                        //Log.d("TAG","user date: "+c);
+                        userTime = (Long) u.timestamp;
                         Range<Long> timeRange = Range.create(from.getTime(),
                                 to.getTime());
-                        if(timeRange.contains(userTime)){
-
-                            //   c = simpleDateFormat.format(userTime);
-                            //Log.d("TAG","Found user match to date: "+c);
+                        if (timeRange.contains(userTime)) {
                             userCount++;
-                         //   Log.d("TAG","User count is:"+userCount);
+
                         }
                     }
-                    if(userCount>0) {
-                        if (userCount != userTotalCount){
+                    if (userCount > 0) {
+                        if (userCount != userTotalCount) {
                             usersPieData.add(new SliceValue(userCount, Color.GREEN).setLabel("Users :" + userCount));
                         }
-                        usersPieData.add(new SliceValue(userTotalCount, Color.parseColor("#FF5252")).setLabel("Total Users :"+userTotalCount));
-                        userCount=0;
-                    }else{
-                        usersPieData.add(new SliceValue(userTotalCount, Color.parseColor("#FF5252")).setLabel("Total Users :"+userTotalCount));
+                        usersPieData.add(new SliceValue(userTotalCount, Color.parseColor("#FF5252")).setLabel("Total Users :" + userTotalCount));
+                        userCount = 0;
+                    } else {
+                        usersPieData.add(new SliceValue(userTotalCount, Color.parseColor("#FF5252")).setLabel("Total Users :" + userTotalCount));
                     }
                 }
 
@@ -170,35 +168,29 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                    for(DataSnapshot ds : snapshot.getChildren()) {
+                    for (DataSnapshot ds : snapshot.getChildren()) {
                         for (DataSnapshot dsResult : ds.getChildren()) {
                             Recipes rec = dsResult.getValue(Recipes.class);
                             assert rec != null;
 
                             recipeTime = (Long) rec.getTimestamp();
-                            //  @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new SimpleDateFormat(getString(R.string.date_format));
-                            //String c = simpleDateFormat.format(recipeTime);
-                            // Log.d("TAG"," recipe date: "+c);
                             Range<Long> recipeTimeRange = Range.create(from.getTime(),
                                     to.getTime());
                             if (recipeTimeRange.contains(recipeTime)) {
-
-                                //  c = simpleDateFormat.format(recipeTime);
-                                //  Log.d("TAG","Found recipe match to date: "+c);
                                 recipeCount++;
-                                //Log.d("TAG","Recipe count is:"+recipeCount);
+
                             }
                         }
 
                     }
-                    if(recipeCount>0) {
+                    if (recipeCount > 0) {
                         if (recipeCount != recipeTotalCount) {
                             recipesPieData.add(new SliceValue(recipeCount, Color.RED).setLabel("Recipes :" + recipeCount));
                         }
-                        recipesPieData.add(new SliceValue(recipeTotalCount, Color.parseColor("#3F51B5")).setLabel("Total Recipes :"+recipeTotalCount));
+                        recipesPieData.add(new SliceValue(recipeTotalCount, Color.parseColor("#3F51B5")).setLabel("Total Recipes :" + recipeTotalCount));
                         recipeCount = 0;
-                    }else{
-                        recipesPieData.add(new SliceValue(recipeTotalCount, Color.parseColor("#3F51B5")).setLabel("Total Recipes :"+recipeTotalCount));
+                    } else {
+                        recipesPieData.add(new SliceValue(recipeTotalCount, Color.parseColor("#3F51B5")).setLabel("Total Recipes :" + recipeTotalCount));
                     }
                     setChart();
                 }
@@ -210,6 +202,7 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
             });
         }
     }
+
     @Override
     public void onBackPressed() {
         AlertDialog.Builder builder = new AlertDialog.Builder(AdminActivity.this);
@@ -225,7 +218,7 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
             );
-            params.setMargins(20,0,0,0);
+            params.setMargins(20, 0, 0, 0);
             Button button = alertExit.getButton(AlertDialog.BUTTON_POSITIVE);
             button.setLayoutParams(params);
         });
@@ -233,7 +226,7 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
 
     }
 
-    private void setChart(){
+    private void setChart() {
         recipesPieChart = new PieChartData(recipesPieData);
         usersPieChart = new PieChartData(usersPieData);
 
@@ -250,6 +243,7 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
         usersChart.setPieChartData(usersPieChart);
 
     }
+
     private void setVariables() {
         usersChart = findViewById(R.id.chartUsers);
         recipesChart = findViewById(R.id.chartRecipe);
@@ -265,14 +259,14 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
      * Get general data from the DB.
      */
 
-    private void getRejectData(){
+    private void getRejectData() {
         rejectReasonPieData.clear();
         topModPieData.clear();
         Query dbQuery = refRecipes.orderByKey();
         dbQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
+                if (snapshot.exists()) {
                     recipeTotalCount = Integer.parseInt(String.valueOf(snapshot.getChildrenCount()));
                     //recipeAmount.setText(String.valueOf(snapshot.getChildrenCount()));
                 }
@@ -288,9 +282,9 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
         dbUsersQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
-                    userTotalCount= Integer.parseInt(String.valueOf(snapshot.getChildrenCount()));
-                   // usersAmount.setText(String.valueOf(snapshot.getChildrenCount()));
+                if (snapshot.exists()) {
+                    userTotalCount = Integer.parseInt(String.valueOf(snapshot.getChildrenCount()));
+                    // usersAmount.setText(String.valueOf(snapshot.getChildrenCount()));
                 }
             }
 
@@ -300,52 +294,63 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
             }
         });
 
-       Query dbDelList = deleted_list.orderByKey();
-       dbDelList.addListenerForSingleValueEvent(new ValueEventListener() {
-             @Override
-           public void onDataChange(@NonNull DataSnapshot snapshot) {
-               for(DataSnapshot dst : snapshot.getChildren()){
-                  //Log.w("TAG","Value is:" +dst.getKey());
-                   int count =  Integer.parseInt(String.valueOf(dst.getChildrenCount()));
-                 //  Log.w("TAG","Count is:" +count);
-                   color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-                   topModPieData.add(new SliceValue(count,color ).setLabel(""+dst.getKey()+": "+count));
-                   for(DataSnapshot dst2 : dst.getChildren()){
-                       RejectedRecipe rejectedRecipe =  dst2.getValue(RejectedRecipe.class);
-                       assert rejectedRecipe != null;
-                       Range<Long> recipeRejectTimeRange = Range.create(from.getTime(),to.getTime());
-                       rejectRecipeTime = rejectedRecipe.timestamp;
-                       if(recipeRejectTimeRange.contains(rejectRecipeTime)) {
-                           //  Can replace with a function that have a switch case based on each reason
-                           //  Log.w("TAG","Reasons:"+rejectedRecipe.rejectReasons);
-                           if (rejectedRecipe.rejectReasons.contains("Spam")) spam++;
-                           if (rejectedRecipe.rejectReasons.contains("Missing info")) missingInfo++;
-                           if (rejectedRecipe.rejectReasons.contains("Bad Picture")) badPicture++;
-                           if (rejectedRecipe.rejectReasons.contains("Bad Desc")) badDesc++;
-                           if (rejectedRecipe.rejectReasons.contains("Bad Title")) badTitle++;
-                           if (rejectedRecipe.rejectReasons.contains("Missing Ingredients"))
-                               missingIngredients++;
-                           if (!rejectedRecipe.rejectReasons.contains("Spam") &&
-                                   !rejectedRecipe.rejectReasons.contains("Missing info") &&
-                                   !rejectedRecipe.rejectReasons.contains("Bad Picture") &&
-                                   !rejectedRecipe.rejectReasons.contains("Bad Title") &&
-                                   !rejectedRecipe.rejectReasons.contains("Missing Ingredients"))
-                               other++;
-                       }
+        Query dbDelList = deleted_list.orderByKey();
+        dbDelList.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot dst : snapshot.getChildren()) {
+                    //Log.w("TAG","Value is:" +dst.getKey());
+                    int count = Integer.parseInt(String.valueOf(dst.getChildrenCount()));
+                    //  Log.w("TAG","Count is:" +count);
+                    color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+                    topModPieData.add(new SliceValue(count, color).setLabel("" + dst.getKey() + ": " + count));
+                    for (DataSnapshot dst2 : dst.getChildren()) {
+                        RejectedRecipe rejectedRecipe = dst2.getValue(RejectedRecipe.class);
+                        assert rejectedRecipe != null;
+                        Range<Long> recipeRejectTimeRange = Range.create(from.getTime(), to.getTime());
+                        rejectRecipeTime = rejectedRecipe.timestamp;
+                        if (recipeRejectTimeRange.contains(rejectRecipeTime)) {
+                            switch (rejectedRecipe.rejectReasons){
+                                case "Spam":
+                                    spam++;
+                                    break;
+                                case "Missing info":
+                                    missingInfo++;
+                                    break;
+                                case "Bad Picture":
+                                    badPicture++;
+                                    break;
+                                case "Bad Title":
+                                    badTitle++;
+                                    break;
+                                case "Bad Desc":
+                                    badDesc++;
+                                    break;
+                                case "Missing Ingredients Desc":
+                                    missingIngredients++;
+                                    break;
+                                default:
+                                    other++;
+                                    break;
 
 
+                            }
+                        }
 
-                   }
-               }
-              setColors();
-              setDelPieData();
-           }
 
-           @Override
-           public void onCancelled(@NonNull DatabaseError error) {
+                    }
+                }
+                setColors();
+                setDelPieData();
+                progressDialog.dismiss();
+            }
 
-           }
-       });
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+
+        });
     }
 
     /**
@@ -372,13 +377,13 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void resetCount() {
-        spam=0;
-        missingIngredients=0;
-        missingInfo=0;
-        badDesc=0;
-        badPicture=0;
-        badTitle=0;
-        other=0;
+        spam = 0;
+        missingIngredients = 0;
+        missingInfo = 0;
+        badDesc = 0;
+        badPicture = 0;
+        badTitle = 0;
+        other = 0;
     }
 
     /**
@@ -386,40 +391,41 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
      */
     private void setColors() {
 
-        if(spam>0) {
+        if (spam > 0) {
             color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
             rejectReasonPieData.add(new SliceValue(spam, color).setLabel("Spam " + spam));
         }
-        if(missingInfo>0){
+        if (missingInfo > 0) {
             color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-            rejectReasonPieData.add(new SliceValue(missingInfo,color).setLabel("Missing Info "+missingInfo));
+            rejectReasonPieData.add(new SliceValue(missingInfo, color).setLabel("Missing Info " + missingInfo));
         }
-        if(badPicture>0){
+        if (badPicture > 0) {
             color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-            rejectReasonPieData.add(new SliceValue(badPicture,color).setLabel("Bad Picture "+badPicture));
+            rejectReasonPieData.add(new SliceValue(badPicture, color).setLabel("Bad Picture " + badPicture));
         }
-        if(badDesc>0){
+        if (badDesc > 0) {
             color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-            rejectReasonPieData.add(new SliceValue(badDesc,color).setLabel("Bad Desc "+badDesc));
+            rejectReasonPieData.add(new SliceValue(badDesc, color).setLabel("Bad Desc " + badDesc));
         }
-        if(badTitle>0){
+        if (badTitle > 0) {
             color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-            rejectReasonPieData.add(new SliceValue(badTitle,color).setLabel("Bad Title "+badTitle));
+            rejectReasonPieData.add(new SliceValue(badTitle, color).setLabel("Bad Title " + badTitle));
         }
-        if(missingIngredients>0){
+        if (missingIngredients > 0) {
             color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-            rejectReasonPieData.add(new SliceValue(missingIngredients,color).setLabel("Missing Ingredients "+missingIngredients));
+            rejectReasonPieData.add(new SliceValue(missingIngredients, color).setLabel("Missing Ingredients " + missingIngredients));
         }
-        if(other>0){
+        if (other > 0) {
             color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-            rejectReasonPieData.add(new SliceValue(other,color).setLabel("Other "+other));
+            rejectReasonPieData.add(new SliceValue(other, color).setLabel("Other " + other));
         }
 
     }
 
     /**
      * Convert Date to Text.
-     * @param v gets the onClickListner that was clicked
+     *
+     * @param v gets the onClickListener that was clicked
      */
     @Override
     public void onClick(View v) {
@@ -433,12 +439,12 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
             @SuppressLint("SetTextI18n") DatePickerDialog datePickerDialog = new DatePickerDialog(this,
                     (view, year, monthOfYear, dayOfMonth) -> {
 
-                        toDate.setText( dayOfMonth+ "-" + (monthOfYear + 1) + "-" + year);
+                        toDate.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
                         @SuppressLint("SimpleDateFormat") DateFormat formatter = new SimpleDateFormat(getString(R.string.date_format));
                         try {
                             to = formatter.parse(toDate.getText().toString());
                             assert to != null;
-                            Log.d(TAG, "onClick: toDate:"+to.getTime());
+                            Log.d(TAG, "onClick: toDate:" + to.getTime());
                         } catch (ParseException e) {
                             e.printStackTrace();
                         }
@@ -447,7 +453,7 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
             datePickerDialog.getDatePicker().setMaxDate(new Date().getTime());
             datePickerDialog.show();
         }
-        if(v == fromDate){
+        if (v == fromDate) {
 
             mYear = c.get(Calendar.YEAR);
             mMonth = c.get(Calendar.MONTH);
@@ -457,12 +463,12 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
             @SuppressLint("SetTextI18n") DatePickerDialog datePickerDialog = new DatePickerDialog(this,
                     (view, year, monthOfYear, dayOfMonth) -> {
 
-                        fromDate.setText( dayOfMonth+ "-" + (monthOfYear + 1) + "-" + year);
+                        fromDate.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
                         @SuppressLint("SimpleDateFormat") DateFormat formatter = new SimpleDateFormat(getString(R.string.date_format));
                         try {
-                           from = formatter.parse(fromDate.getText().toString());
+                            from = formatter.parse(fromDate.getText().toString());
                             assert from != null;
-                            Log.d(TAG, "onClick: fromDate:"+from.getTime());
+                            Log.d(TAG, "onClick: fromDate:" + from.getTime());
                         } catch (ParseException e) {
                             e.printStackTrace();
                         }
@@ -470,7 +476,7 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
                     }, mYear, mMonth, mDay);
             datePickerDialog.getDatePicker().setMaxDate(new Date().getTime());
             datePickerDialog.show();
-    }
+        }
 
 
     }
@@ -480,64 +486,59 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
      */
     public boolean onCreateOptionsMenu(Menu menu) {
 
-        getMenuInflater().inflate(R.menu.menu_layout,menu);
+        getMenuInflater().inflate(R.menu.menu_layout, menu);
         return super.onCreateOptionsMenu(menu);
     }
+
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
-            if(itemId ==  R.id.menu_Exit) {
-                final Dialog myDialog = new Dialog(AdminActivity.this);
-                myDialog.setContentView(R.layout.dialog);
-                btnDismiss = myDialog.findViewById(R.id.btnDismiss);
-                btnOk = myDialog.findViewById(R.id.btnOk);
+        if (itemId == R.id.menu_Exit) {
+            final Dialog myDialog = new Dialog(AdminActivity.this);
+            myDialog.setContentView(R.layout.dialog);
+            btnDismiss = myDialog.findViewById(R.id.btnDismiss);
+            btnOk = myDialog.findViewById(R.id.btnOk);
 
-                // if pressed Ok will close the App
-                btnOk.setOnClickListener(v -> {
+            // if pressed Ok will close the App
+            btnOk.setOnClickListener(v -> {
 
-                    SharedPreferences.Editor delData = getSharedPreferences("userData", MODE_PRIVATE).edit();
-                    delData.clear();
-                    delData.apply();
-                    delData = getSharedPreferences("favRecipes",MODE_PRIVATE).edit();
-                    delData.clear();
-                    delData.apply();
-                    finishAffinity();
-                });
-                // if pressed Dismiss will stay in the App
-                btnDismiss.setOnClickListener(v -> myDialog.dismiss());
-                myDialog.show();
-            }
-
-            else if(itemId == R.id.menuProfile) {
-                Intent profile = new Intent(AdminActivity.this, ProfileActivity.class);
-                profile.putExtra("username", getIntent().getStringExtra("username"));
-                profile.putExtra("userRole", getIntent().getStringExtra("userRole"));
-                startActivity(profile);
-                finish();
-            }
-             else if(itemId == R.id.menu_MyRecepies){
-                    Intent myRecipes = new Intent(AdminActivity.this, MyRecipes.class);
-                    myRecipes.putExtra("username", getIntent().getStringExtra("username"));
-                    myRecipes.putExtra("userRole", getIntent().getStringExtra("userRole"));
-                    startActivity(myRecipes);
-            }
-           else if(itemId == R.id.menu_SearchRecepie) {
-                Intent search = new Intent(AdminActivity.this, SearchRecipe.class);
-                search.putExtra("username", getIntent().getStringExtra("username"));
-                search.putExtra("userRole", getIntent().getStringExtra("userRole"));
-                startActivity(search);
-            }
-            else if(itemId == R.id.menuInbox) {
-                Intent inbox = new Intent(AdminActivity.this, Inbox_new.class);
-                inbox.putExtra("username", getIntent().getStringExtra("username"));
-                inbox.putExtra("userRole", getIntent().getStringExtra("userRole"));
-                startActivity(inbox);
-            }
-             else if(itemId ==R.id.menuHome) {
-                Intent main = new Intent(AdminActivity.this, MainActivity.class);
-                main.putExtra("username", getIntent().getStringExtra("username"));
-                main.putExtra("userRole", getIntent().getStringExtra("userRole"));
-                startActivity(main);
-            }
+                SharedPreferences.Editor delData = getSharedPreferences("userData", MODE_PRIVATE).edit();
+                delData.clear();
+                delData.apply();
+                delData = getSharedPreferences("favRecipes", MODE_PRIVATE).edit();
+                delData.clear();
+                delData.apply();
+                finishAffinity();
+            });
+            // if pressed Dismiss will stay in the App
+            btnDismiss.setOnClickListener(v -> myDialog.dismiss());
+            myDialog.show();
+        } else if (itemId == R.id.menuProfile) {
+            Intent profile = new Intent(AdminActivity.this, ProfileActivity.class);
+            profile.putExtra("username", getIntent().getStringExtra("username"));
+            profile.putExtra("userRole", getIntent().getStringExtra("userRole"));
+            startActivity(profile);
+            finish();
+        } else if (itemId == R.id.menu_MyRecepies) {
+            Intent myRecipes = new Intent(AdminActivity.this, MyRecipes.class);
+            myRecipes.putExtra("username", getIntent().getStringExtra("username"));
+            myRecipes.putExtra("userRole", getIntent().getStringExtra("userRole"));
+            startActivity(myRecipes);
+        } else if (itemId == R.id.menu_SearchRecepie) {
+            Intent search = new Intent(AdminActivity.this, SearchRecipe.class);
+            search.putExtra("username", getIntent().getStringExtra("username"));
+            search.putExtra("userRole", getIntent().getStringExtra("userRole"));
+            startActivity(search);
+        } else if (itemId == R.id.menuInbox) {
+            Intent inbox = new Intent(AdminActivity.this, Inbox_new.class);
+            inbox.putExtra("username", getIntent().getStringExtra("username"));
+            inbox.putExtra("userRole", getIntent().getStringExtra("userRole"));
+            startActivity(inbox);
+        } else if (itemId == R.id.menuHome) {
+            Intent main = new Intent(AdminActivity.this, MainActivity.class);
+            main.putExtra("username", getIntent().getStringExtra("username"));
+            main.putExtra("userRole", getIntent().getStringExtra("userRole"));
+            startActivity(main);
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -548,7 +549,7 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
     protected void onStart() {
         super.onStart();
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(bcr,filter);
+        registerReceiver(bcr, filter);
     }
 
     /**
@@ -563,13 +564,13 @@ public class AdminActivity extends AppCompatActivity implements View.OnClickList
     /**
      * Replace the dates in the options with the current date.
      */
-    private void setCurrentDateonOpen(){
+    private void setCurrentDateOpen() {
         Calendar c = Calendar.getInstance();
         int currentYear = c.get(Calendar.YEAR);
         int currentMonth = c.get(Calendar.MONTH);
         int currentDay = c.get(Calendar.DAY_OF_MONTH);
 
-        String date =  currentDay +"-"+ (currentMonth+1) +"-"+ currentYear;
+        String date = currentDay + "-" + (currentMonth + 1) + "-" + currentYear;
         toDate.setText(date);
         fromDate.setText(date);
     }

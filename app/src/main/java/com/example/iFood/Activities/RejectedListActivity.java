@@ -1,11 +1,5 @@
 package com.example.iFood.Activities;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -13,9 +7,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.LinearLayout;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.iFood.Adapters.RejectAdapter;
 import com.example.iFood.Classes.RejectedRecipe;
@@ -44,6 +43,7 @@ public class RejectedListActivity extends AppCompatActivity {
     RejectAdapter myAdapter;
     List<RejectedRecipe> rejectedRecipeList = new ArrayList<>();
     DatabaseReference deleted_list = FirebaseDatabase.getInstance().getReference().child("Deleted List");
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,10 +57,9 @@ public class RejectedListActivity extends AppCompatActivity {
         getRejectedList();
 
         ///////////////////////////////
-        if(getSupportActionBar() != null){
+        if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
-
 
 
     } // onCreate ends
@@ -69,17 +68,17 @@ public class RejectedListActivity extends AppCompatActivity {
         bottomAppBar.setNavigationOnClickListener(v -> {
             NavDrawFragment bottomNavFrag = new NavDrawFragment();
             Bundle bundle = new Bundle();
-            bundle.putString("username",getIntent().getStringExtra("username"));
-            bundle.putString("userRole",getIntent().getStringExtra("userRole"));
+            bundle.putString("username", getIntent().getStringExtra("username"));
+            bundle.putString("userRole", getIntent().getStringExtra("userRole"));
             bottomNavFrag.setArguments(bundle);
-            bottomNavFrag.show(getSupportFragmentManager(),"TAG");
+            bottomNavFrag.show(getSupportFragmentManager(), "TAG");
 
         });
         ///////////////////////////////
         bottomAppBar.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
 
-            if(id == R.id.bottomAbout){
+            if (id == R.id.bottomAbout) {
                 Intent about = new Intent(RejectedListActivity.this, About.class);
                 startActivity(about);
             }
@@ -89,10 +88,10 @@ public class RejectedListActivity extends AppCompatActivity {
         addIcon.setOnClickListener(v -> {
             AddDrawFragment addIcon = new AddDrawFragment();
             Bundle bundle = new Bundle();
-            bundle.putString("username",getIntent().getStringExtra("username"));
-            bundle.putString("userRole",getIntent().getStringExtra("userRole"));
+            bundle.putString("username", getIntent().getStringExtra("username"));
+            bundle.putString("userRole", getIntent().getStringExtra("userRole"));
             addIcon.setArguments(bundle);
-            addIcon.show(getSupportFragmentManager(),"TAG");
+            addIcon.show(getSupportFragmentManager(), "TAG");
         });
     }
 
@@ -103,7 +102,7 @@ public class RejectedListActivity extends AppCompatActivity {
     }
 
 
-    private void getRejectedList(){
+    private void getRejectedList() {
         // enter all recipes fetched from DB to arrayList that are not approved by mod/admin
         progressDialog = new ProgressDialog(RejectedListActivity.this);
         progressDialog.setMessage("Fetching information");
@@ -116,8 +115,8 @@ public class RejectedListActivity extends AppCompatActivity {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     rejectedRecipeList.clear();
-                    for(DataSnapshot dst : dataSnapshot.getChildren()) {
-                        for(DataSnapshot dst2 : dst.getChildren()) {
+                    for (DataSnapshot dst : dataSnapshot.getChildren()) {
+                        for (DataSnapshot dst2 : dst.getChildren()) {
                             if (dst2.exists()) {
 
                                 RejectedRecipe rec = dst2.getValue(RejectedRecipe.class);
@@ -130,18 +129,19 @@ public class RejectedListActivity extends AppCompatActivity {
                             }
                         }
                     }
-                    if(rejectedRecipeList.size() < 1){
+                    if (rejectedRecipeList.size() < 1) {
                         refresh_lv();
                         CoordinatorLayout coordinatorLayout = findViewById(R.id.mainLayoutReject);
                         coordinatorLayout.setBackground(getDrawable(R.drawable.all_clear_background));
 
-                    }else{
+                    } else {
                         CoordinatorLayout coordinatorLayout = findViewById(R.id.mainLayoutReject);
                         coordinatorLayout.setBackground(getDrawable(R.drawable.background3));
 
                     }
                     progressDialog.dismiss();
                 }
+
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
 
@@ -166,21 +166,22 @@ public class RejectedListActivity extends AppCompatActivity {
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
             );
-            params.setMargins(20,0,0,0);
+            params.setMargins(20, 0, 0, 0);
             Button button = alertExit.getButton(AlertDialog.BUTTON_POSITIVE);
             button.setLayoutParams(params);
         });
         alertExit.show();
 
     }
+
     /**
      * This function is responsible for refreshing our Listview with our customer Adapter.
      * spanCount controls on the amount of items on each row.
      */
-    private void refresh_lv(){
-        myAdapter = new RejectAdapter(this,rejectedRecipeList);
+    private void refresh_lv() {
+        myAdapter = new RejectAdapter(this, rejectedRecipeList);
 
-        rejectedList.setLayoutManager(new GridLayoutManager(this,1));
+        rejectedList.setLayoutManager(new GridLayoutManager(this, 1));
 
         rejectedList.setAdapter(myAdapter);
     }
@@ -191,7 +192,7 @@ public class RejectedListActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(bcr,filter);
+        registerReceiver(bcr, filter);
     }
 
     /**

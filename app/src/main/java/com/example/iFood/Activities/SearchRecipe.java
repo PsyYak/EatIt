@@ -3,7 +3,6 @@ package com.example.iFood.Activities;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
@@ -22,8 +21,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.iFood.Adapters.RecipeAdapter;
 import com.example.iFood.Classes.Recipes;
 import com.example.iFood.MenuFragments.AddDrawFragment;
@@ -38,25 +37,25 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
-
  * This screen have menu, add recipes button and search option
  * This screen allows users to search for recipes depends on the ingredients they have.
  */
 public class SearchRecipe extends AppCompatActivity {
     ConnectionBCR bcr = new ConnectionBCR();
-    Button btnSearch,btnReset;
+    Button btnSearch, btnReset;
     BottomAppBar bottomAppBar;
     FloatingActionButton addIcon;
     EditText et_search;
     TextView tv_feature;
     String activity = this.getClass().getName();
-    String search_feature_data="";
-    String search_type_data="";
+    String search_feature_data = "";
+    String search_type_data = "";
     String[] userInput = {};
     List<Recipes> searchResultArray = new ArrayList<>();
     List<String> search_featureList = new ArrayList<>();
@@ -72,7 +71,7 @@ public class SearchRecipe extends AppCompatActivity {
         setContentView(R.layout.activity_search_recipe);
 
         // hide the top bar
-        if(getSupportActionBar() != null){
+        if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
 
@@ -111,43 +110,40 @@ public class SearchRecipe extends AppCompatActivity {
                 }
             });
             builder.setPositiveButton("Select", (dialog, which) -> {
-                String data = "";
+                StringBuilder data = new StringBuilder();
                 int i = 0;
                 for (String item : search_featureList) {
                     if (i++ == search_featureList.size() - 1) {
-                        data = data + item;
+                        data.append(item);
                     } else {
-                        data = data + item + ",";
+                        data.append(item).append(",");
                     }
 
                 }
-                search_feature_data = data;
-                tv_feature.setText(data);
+                search_feature_data = data.toString();
+                tv_feature.setText(data.toString());
                 search_featureList.clear();
             });
             builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
             final AlertDialog alertFeature = builder.create();
-            alertFeature.setOnShowListener(new DialogInterface.OnShowListener() {
-                @Override
-                public void onShow(DialogInterface dialog) {
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.WRAP_CONTENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT
-                    );
-                    params.setMargins(20,0,0,0);
-                    Button button = alertFeature.getButton(AlertDialog.BUTTON_POSITIVE);
-                    button.setLayoutParams(params);
-                }
+            alertFeature.setOnShowListener(dialog -> {
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+                params.setMargins(20, 0, 0, 0);
+                Button button = alertFeature.getButton(AlertDialog.BUTTON_POSITIVE);
+                button.setLayoutParams(params);
             });
             alertFeature.show();
         });
         btnSearch.setOnClickListener(v -> {
             // call a function to search for what user entered
             getInput();
-            if(!et_search.getText().toString().isEmpty() || !tv_feature.getText().toString().isEmpty() || !type_spinner.getSelectedItem().toString().isEmpty()){
+            if (!et_search.getText().toString().isEmpty() || !tv_feature.getText().toString().isEmpty() || !type_spinner.getSelectedItem().toString().isEmpty()) {
                 searchRecipe();
-            }else{
-                Toast.makeText(SearchRecipe.this,"Please enter ingredients",Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(SearchRecipe.this, "Please enter ingredients", Toast.LENGTH_SHORT).show();
                 et_search.requestFocus();
             }
 
@@ -160,17 +156,17 @@ public class SearchRecipe extends AppCompatActivity {
         bottomAppBar.setNavigationOnClickListener(v -> {
             NavDrawFragment bottomNavFrag = new NavDrawFragment();
             Bundle bundle = new Bundle();
-            bundle.putString("username",getIntent().getStringExtra("username"));
-            bundle.putString("userRole",getIntent().getStringExtra("userRole"));
+            bundle.putString("username", getIntent().getStringExtra("username"));
+            bundle.putString("userRole", getIntent().getStringExtra("userRole"));
             bottomNavFrag.setArguments(bundle);
-            bottomNavFrag.show(getSupportFragmentManager(),"bottomNav");
+            bottomNavFrag.show(getSupportFragmentManager(), "bottomNav");
 
         });
         ///////////////////////////////
         bottomAppBar.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
 
-            if(id == R.id.bottomAbout){
+            if (id == R.id.bottomAbout) {
                 Intent about = new Intent(SearchRecipe.this, About.class);
                 startActivity(about);
             }
@@ -180,10 +176,10 @@ public class SearchRecipe extends AppCompatActivity {
         addIcon.setOnClickListener(v -> {
             AddDrawFragment addIcon = new AddDrawFragment();
             Bundle bundle = new Bundle();
-            bundle.putString("username",getIntent().getStringExtra("username"));
-            bundle.putString("userRole",getIntent().getStringExtra("userRole"));
+            bundle.putString("username", getIntent().getStringExtra("username"));
+            bundle.putString("userRole", getIntent().getStringExtra("userRole"));
             addIcon.setArguments(bundle);
-            addIcon.show(getSupportFragmentManager(),"addIconNav");
+            addIcon.show(getSupportFragmentManager(), "addIconNav");
         });
     }
 
@@ -201,7 +197,7 @@ public class SearchRecipe extends AppCompatActivity {
         myrecyclerView = findViewById(R.id.searchRecipeResultsLV);
         // Spinner
         type_spinner = findViewById(R.id.spinner_type);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,R.array.recipeType,android.R.layout.simple_spinner_item);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.recipeType, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         type_spinner.setAdapter(adapter);
 
@@ -237,18 +233,19 @@ public class SearchRecipe extends AppCompatActivity {
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
             );
-            params.setMargins(20,0,0,0);
+            params.setMargins(20, 0, 0, 0);
             Button button = alertExit.getButton(AlertDialog.BUTTON_POSITIVE);
             button.setLayoutParams(params);
         });
         alertExit.show();
 
     }
+
     /**
      * This function divides the user input into multiple variables to be used in search
      * and translate the input to English to bring up results from the Database.
      */
-    private void getInput(){
+    private void getInput() {
         userInput = et_search.getText().toString().split("\n");
 
         /*
@@ -279,13 +276,14 @@ public class SearchRecipe extends AppCompatActivity {
             });
         }*/
     }
+
     /**
      * This function is called each time a user hits the "Search" button.
      * This function responsible to retrieve information from Database depends on
      * users input.
      * Will also called "refresh_lv" on each result.
      */
-    public void searchRecipe(){
+    public void searchRecipe() {
         ProgressDialog progressDialog = new ProgressDialog(SearchRecipe.this);
         progressDialog.setMessage("Searching for your recipe..");
         progressDialog.setCanceledOnTouchOutside(false);
@@ -298,64 +296,63 @@ public class SearchRecipe extends AppCompatActivity {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     searchResultArray.clear();
-                    int count = 0,inputSize = userInput.length;
-                    Log.w("TAG","Search type data:"+search_type_data+",search feature:"+search_feature_data);
-                    for(DataSnapshot dst : dataSnapshot.getChildren()){
-                        for(DataSnapshot searchedResults : dst.getChildren()){
+                    int count = 0, inputSize = userInput.length;
+                    Log.w("TAG", "Search type data:" + search_type_data + ",search feature:" + search_feature_data);
+                    for (DataSnapshot dst : dataSnapshot.getChildren()) {
+                        for (DataSnapshot searchedResults : dst.getChildren()) {
                             Recipes results = searchedResults.getValue(Recipes.class);
                             assert results != null;
                             for (String s : userInput) {
-                                if(!search_feature_data.isEmpty() && !search_type_data.isEmpty()){
-                                    if(results.getRecipeIngredients().toLowerCase().contains(s.toLowerCase()) &&
-                                       results.isApproved() &&
-                                       results.getFeature() != null &&
-                                       results.getType() != null &&
-                                       results.getFeature().contains(search_feature_data) &&
-                                       results.getType().contains(search_type_data)
-                                    ){
-                                        count+=1;
+                                if (!search_feature_data.isEmpty() && !search_type_data.isEmpty()) {
+                                    if (results.getRecipeIngredients().toLowerCase().contains(s.toLowerCase()) &&
+                                            results.isApproved() &&
+                                            results.getFeature() != null &&
+                                            results.getType() != null &&
+                                            results.getFeature().contains(search_feature_data) &&
+                                            results.getType().contains(search_type_data)
+                                    ) {
+                                        count += 1;
 
                                     }
-                                }else if(!search_type_data.isEmpty()){
-                                    if(results.getRecipeIngredients().toLowerCase().contains(s.toLowerCase()) &&
-                                       results.isApproved() &&
-                                       results.getType() != null &&
-                                       results.getType().contains(search_type_data)
-                                    ){
-                                        count+=1;
+                                } else if (!search_type_data.isEmpty()) {
+                                    if (results.getRecipeIngredients().toLowerCase().contains(s.toLowerCase()) &&
+                                            results.isApproved() &&
+                                            results.getType() != null &&
+                                            results.getType().contains(search_type_data)
+                                    ) {
+                                        count += 1;
 
                                     }
 
-                                }else if(!search_feature_data.isEmpty()){
-                                    if(results.getRecipeIngredients().toLowerCase().contains(s.toLowerCase()) &&
-                                       results.isApproved() &&
-                                       results.getFeature() != null &&
-                                       results.getFeature().contains(search_feature_data)
-                                    ){
-                                        count+=1;
+                                } else if (!search_feature_data.isEmpty()) {
+                                    if (results.getRecipeIngredients().toLowerCase().contains(s.toLowerCase()) &&
+                                            results.isApproved() &&
+                                            results.getFeature() != null &&
+                                            results.getFeature().contains(search_feature_data)
+                                    ) {
+                                        count += 1;
 
                                     }
-                                }else{
-                                    if(results.getRecipeIngredients().toLowerCase().contains(s.toLowerCase()) &&
-                                       results.isApproved()){
-                                        count+=1;
+                                } else {
+                                    if (results.getRecipeIngredients().toLowerCase().contains(s.toLowerCase()) &&
+                                            results.isApproved()) {
+                                        count += 1;
 
                                     }
                                 }
 
 
                             }
-                            if(count==inputSize){
+                            if (count == inputSize) {
                                 searchResultArray.add(results);
                                 refresh_lv();
 
                             }
-                            count=0;
+                            count = 0;
                         }
                     }
                     progressDialog.dismiss();
-                    if(searchResultArray.size()<1)
-                    {
+                    if (searchResultArray.size() < 1) {
                         LinearLayout linearLayout = findViewById(R.id.resultsLayout);
                         myrecyclerView.setVisibility(View.GONE);
                         linearLayout.setBackground(getDrawable(R.drawable.no_results));
@@ -368,34 +365,36 @@ public class SearchRecipe extends AppCompatActivity {
 
                 }
             });
-        }catch(Exception e){
-            Log.w("TAG","Error:"+e.getMessage());
+        } catch (Exception e) {
+            Log.w("TAG", "Error:" + e.getMessage());
         }
 
 
-
     }
+
     /**
      * This function is responsible for refreshing our Listview with our customer Adapter.
      * spanCount controls on the amount of items on each row.
      */
-    private void refresh_lv(){
+    private void refresh_lv() {
 
         //Log.w("tag","activity:"+activity);
-        myAdapter = new RecipeAdapter(this,searchResultArray,activity);
+        myAdapter = new RecipeAdapter(this, searchResultArray, activity);
 
-        myrecyclerView.setLayoutManager(new GridLayoutManager(this,3));
+        myrecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
 
         myrecyclerView.setAdapter(myAdapter);
     }
-       /**
+
+    /**
      * Register our Broadcast Receiver when opening the app.
      */
     protected void onStart() {
         super.onStart();
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(bcr,filter);
+        registerReceiver(bcr, filter);
     }
+
     /**
      * Stop our Broadcast Receiver when the app is closed.
      */

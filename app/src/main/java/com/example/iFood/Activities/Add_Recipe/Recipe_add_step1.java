@@ -20,7 +20,7 @@ import static com.example.iFood.Activities.Add_Recipe.addRecipe_New.recipeName;
  */
 
 public class Recipe_add_step1 extends Fragment {
-    EditText etRecipeName,etRecipeIngredients;
+    EditText etRecipeName, etRecipeIngredients;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -34,21 +34,21 @@ public class Recipe_add_step1 extends Fragment {
         etRecipeName = view.findViewById(R.id.etRecipeName);
 
         etRecipeName.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-                }
+            }
 
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
 
-                }
+            }
 
-                @Override
-                public void afterTextChanged(Editable s) {
-                    recipeName = etRecipeName.getText().toString();
-                }
-            });
+            @Override
+            public void afterTextChanged(Editable s) {
+                recipeName = etRecipeName.getText().toString();
+            }
+        });
         etRecipeIngredients.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -65,7 +65,6 @@ public class Recipe_add_step1 extends Fragment {
                 recipeIngredients = etRecipeIngredients.getText().toString();
             }
         });
-
 
 
         return view;

@@ -12,7 +12,6 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.ConnectivityManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.method.DigitsKeyListener;
@@ -60,35 +59,34 @@ public class ProfileActivity extends AppCompatActivity {
     // Patterns for inputs
     public final Pattern textPattern = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$");
     public final Pattern namePattern = Pattern.compile("[a-zA-Z ]+");
-    private ProgressDialog progressDialog;
-    private Dialog resetDialog;
-    private FloatingActionButton btnRefresh,btnBack;
-    private TextView firstName,lastName,phone,email,tvUsername;
-    private ImageView userProfileImage,editPass,editFname,editLname,editPhone;
-    Button confirm,cancel;
+    Button confirm, cancel;
     TextView userEmail;
-    // Camera Handling
-    private EditItemImage mEditItemImage;
     // Broadcast Receiver
     ConnectionBCR bcr = new ConnectionBCR();
-
     Bitmap imageBitmap;
-    // User Info related
-    private String imageURL;
-    String userName,userRole;
-    private Users u;
+    String userName, userRole;
     DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
     StorageReference mStorage = FirebaseStorage.getInstance().getReference();
+    private ProgressDialog progressDialog;
+    private Dialog resetDialog;
+    private FloatingActionButton btnRefresh, btnBack;
+    private TextView firstName, lastName, phone, email, tvUsername;
+    private ImageView userProfileImage, editPass, editFname, editLname, editPhone;
+    // Camera Handling
+    private EditItemImage mEditItemImage;
+    // User Info related
+    private String imageURL;
+    private Users user;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
         // hide top bar
-        if(getSupportActionBar() != null){
+        if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
-
 
 
         // Variables
@@ -111,19 +109,9 @@ public class ProfileActivity extends AppCompatActivity {
         editFname.setOnClickListener(v -> {
             changeFname();
         });
-        editLname.setOnClickListener(v -> {
-            changeLname();
-
-        });
-        editPhone.setOnClickListener(v -> {
-            changePhone();
-
-        });
-        editPass.setOnClickListener(v -> {
-
-            InitResetPassword();
-
-        });
+        editLname.setOnClickListener(v -> changeLname());
+        editPhone.setOnClickListener(v -> changePhone());
+        editPass.setOnClickListener(v -> InitResetPassword());
         userProfileImage.setOnClickListener(v -> mEditItemImage.openDialog());
     }
 
@@ -145,9 +133,9 @@ public class ProfileActivity extends AppCompatActivity {
                         .addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
                                 // Log.d("TAG", "Email Sent.");
-                                Toast.makeText(ProfileActivity.this, R.string.psd_link_sent,Toast.LENGTH_SHORT).show();
-                            }else{
-                                Toast.makeText(ProfileActivity.this, R.string.cant_send_email,Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ProfileActivity.this, R.string.psd_link_sent, Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(ProfileActivity.this, R.string.cant_send_email, Toast.LENGTH_SHORT).show();
                             }
                         }));
         cancel.setOnClickListener(v12 -> resetDialog.dismiss());
@@ -173,7 +161,7 @@ public class ProfileActivity extends AppCompatActivity {
         alert.setView(edittext);
 
         alert.setPositiveButton("Submit", (dialog, whichButton) -> {
-            String number =edittext.getText().toString();
+            String number = edittext.getText().toString();
             ref.child("Users").child(userName).child("Phone").setValue(number);
         });
         alert.setNegativeButton("Cancel", (dialog, whichButton) -> {
@@ -192,7 +180,7 @@ public class ProfileActivity extends AppCompatActivity {
         alert.setView(edittext);
         alert.setPositiveButton("Submit", (dialog, whichButton) -> {
             String lName = edittext.getText().toString();
-            if(!namePattern.matcher(lName).matches())
+            if (!namePattern.matcher(lName).matches())
                 Toast.makeText(ProfileActivity.this, "Must contain only letters!", Toast.LENGTH_SHORT).show();
             else {
 
@@ -214,7 +202,7 @@ public class ProfileActivity extends AppCompatActivity {
         alert.setView(edittext);
         alert.setPositiveButton(R.string.submit, (dialog, whichButton) -> {
             String fName = edittext.getText().toString();
-            if(!namePattern.matcher(fName).matches())
+            if (!namePattern.matcher(fName).matches())
                 Toast.makeText(ProfileActivity.this, "Must contain only letters!", Toast.LENGTH_SHORT).show();
             else {
 
@@ -268,14 +256,14 @@ public class ProfileActivity extends AppCompatActivity {
 
                     for (DataSnapshot dbAnswer : dataSnapshot.getChildren()) {
                         if (Objects.equals(dbAnswer.getKey(), userName)) {
-                            u = dbAnswer.getValue(Users.class);
-                            assert u != null;
-                            tvUsername.setText(String.format("%s", u.getUsername()));
-                            firstName.setText(String.format("%s", u.Fname));
-                            lastName.setText(String.format("%s", u.Lname));
-                            phone.setText(u.Phone);
-                            email.setText(String.format("%s", u.Email));
-                            Picasso.get().load(u.getPic_url()).into(userProfileImage);
+                            user = dbAnswer.getValue(Users.class);
+                            assert user != null;
+                            tvUsername.setText(String.format("%s", user.getUsername()));
+                            firstName.setText(String.format("%s", user.Fname));
+                            lastName.setText(String.format("%s", user.Lname));
+                            phone.setText(user.Phone);
+                            email.setText(String.format("%s", user.Email));
+                            Picasso.get().load(user.getPic_url()).into(userProfileImage);
                             break;
 
 
@@ -297,12 +285,17 @@ public class ProfileActivity extends AppCompatActivity {
     @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     protected void onResume() {
-        // if the image is not null upload it to firebase
-        if(imageBitmap!=null && !Objects.equals(userProfileImage.getDrawable().getConstantState(), getResources().getDrawable(R.drawable.no_image).getConstantState())){
-            progressDialog.setMessage("Uploading Photo");
-            progressDialog.show();
-            updatePhoto();
-        }
+        final Handler handler = new Handler();
+        handler.postDelayed(() -> {
+            // Delay for 3 seconds
+            // if the image is not null upload it to firebase
+            if (imageBitmap != null && !Objects.equals(userProfileImage.getDrawable().getConstantState(), getResources().getDrawable(R.drawable.no_image).getConstantState())) {
+                progressDialog.setMessage("Uploading Photo");
+                progressDialog.show();
+                updatePhoto();
+            }
+
+        }, 3000);
         super.onResume();
     }
 
@@ -320,17 +313,18 @@ public class ProfileActivity extends AppCompatActivity {
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
             );
-            params.setMargins(20,0,0,0);
+            params.setMargins(20, 0, 0, 0);
             Button button = alertExit.getButton(android.app.AlertDialog.BUTTON_POSITIVE);
             button.setLayoutParams(params);
         });
         alertExit.show();
 
     }
+
     /**
      * When user click the refresh button, pull the data again from DB.
      */
-    private void refreshPage(){
+    private void refreshPage() {
         pullUserData();
     }
 
@@ -347,6 +341,7 @@ public class ProfileActivity extends AppCompatActivity {
         ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());//The storage of compressed data in the baos to ByteArrayInputStream
         imageBitmap = BitmapFactory.decodeStream(isBm, null, null);//The ByteArrayInputStream data generation
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
@@ -363,7 +358,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     public void setImage(int requestCode, Intent data) {
         String mPath = EditItemImage.mPath;
-          switch (requestCode) {
+        switch (requestCode) {
             case EditItemImage.TAKE_PICTURE:
                 FileUtils.addMediaToGallery(this, mPath);
                 imageBitmap = BitmapFactory.decodeFile(mPath);
@@ -418,7 +413,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     /**
      * @param source Source Image to rotate
-     * @param angle the angle to rotate the Image
+     * @param angle  the angle to rotate the Image
      * @return Rotated Image
      */
     public Bitmap rotateImage(Bitmap source, float angle) {
@@ -426,6 +421,7 @@ public class ProfileActivity extends AppCompatActivity {
         matrix.postRotate(angle);
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -457,39 +453,37 @@ public class ProfileActivity extends AppCompatActivity {
      */
     private void updatePhoto() {
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                final byte[] data = baos.toByteArray();
-                final UploadTask uploadTask = mStorage.child("Users_Profiles").child(userName).putBytes(data);
-                uploadTask.addOnFailureListener(e -> {
-                    progressDialog.dismiss();
-                    Toast.makeText(ProfileActivity.this,"Photo upload failed, please try again.",Toast.LENGTH_SHORT).show();
-                }).addOnSuccessListener(taskSnapshot -> {
-                    if (taskSnapshot.getMetadata() != null) {
-                        if (taskSnapshot.getMetadata().getReference() != null) {
-                            Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
-                            result.addOnSuccessListener(uri -> {
-                                imageURL = uri.toString();
-                                ref.child("Users").child(userName).child("pic_url").setValue(imageURL);
-                                progressDialog.dismiss();
-                            });
-                        }
+        runOnUiThread(() -> {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            final byte[] data = baos.toByteArray();
+            final UploadTask uploadTask = mStorage.child("Users_Profiles").child(userName).putBytes(data);
+            uploadTask.addOnFailureListener(e -> {
+                progressDialog.dismiss();
+                Toast.makeText(ProfileActivity.this, "Photo upload failed, please try again.", Toast.LENGTH_SHORT).show();
+            }).addOnSuccessListener(taskSnapshot -> {
+                if (taskSnapshot.getMetadata() != null) {
+                    if (taskSnapshot.getMetadata().getReference() != null) {
+                        Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
+                        result.addOnSuccessListener(uri -> {
+                            imageURL = uri.toString();
+                            ref.child("Users").child(userName).child("pic_url").setValue(imageURL);
+                            progressDialog.dismiss();
+                        });
                     }
-                });
-            }
+                }
+            });
         });
 
     }
+
     /**
      * Register our Broadcast Receiver when opening the app.
      */
     protected void onStart() {
         super.onStart();
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(bcr,filter);
+        registerReceiver(bcr, filter);
     }
 
     /**

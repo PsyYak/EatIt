@@ -4,7 +4,6 @@ package com.example.iFood.Adapters;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +15,6 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.iFood.Activities.RecipeActivity;
-import com.example.iFood.Activities.SendMessage;
 import com.example.iFood.Classes.Recipes;
 import com.example.iFood.R;
 import com.squareup.picasso.Picasso;

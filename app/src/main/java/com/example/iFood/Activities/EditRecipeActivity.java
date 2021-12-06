@@ -1,10 +1,12 @@
 package com.example.iFood.Activities;
 
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -17,6 +19,7 @@ import android.media.ExifInterface;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 
 import android.view.View;
@@ -84,14 +87,12 @@ public class EditRecipeActivity extends AppCompatActivity {
         progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.setMessage("Loading..");
         progressDialog.show();
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Picasso.get().load(recipeImageURL).into(ivRecipeImage);
-                progressDialog.dismiss();
-            }
-        });
 
+        Handler handler = new Handler();
+        handler.postDelayed(() -> runOnUiThread(() -> {
+            Picasso.get().load(recipeImageURL).into(ivRecipeImage);
+            progressDialog.dismiss();
+        }),2000);
       //  Log.w("TAG","recipeID:"+recipeID+", username:"+userName);
 
         btnSave.setOnClickListener(v -> {
@@ -106,11 +107,11 @@ public class EditRecipeActivity extends AppCompatActivity {
                 progressDialog.setMessage("Applying Changes..");
                 progressDialog.show();
                 progressDialog.setCanceledOnTouchOutside(false);
-                 recipeTitle = etTitle.getText().toString();
-                 recipeIngredients = etIngredients.getText().toString();
-                 recipeInstructions = etContent.getText().toString();
-                 recipe_Feature = tvRecipe_features.getText().toString();
-                 recipe_Type = tvRecipe_type.getText().toString();
+                recipeTitle = etTitle.getText().toString();
+                recipeIngredients = etIngredients.getText().toString();
+                recipeInstructions = etContent.getText().toString();
+                recipe_Feature = tvRecipe_features.getText().toString();
+                recipe_Type = tvRecipe_type.getText().toString();
                 // Log.w("TAG","Title:"+recipeTitle+", Ingredients:"+recipeIngredients+", Instructions:"+recipeInstructions);
 
                 // if Image is not null then need to upload new image to Storage and delete the old one
@@ -148,7 +149,9 @@ public class EditRecipeActivity extends AppCompatActivity {
                             Toast.makeText(EditRecipeActivity.this, "Please try again", Toast.LENGTH_SHORT).show();
                         });
 
-                                }).addOnFailureListener(e -> Log.w("TAG","Error:"+e.getMessage()));
+                                }).addOnFailureListener(e ->
+                                        Log.w("TAG","Error:"+e.getMessage())
+                                );
                                 progressDialog.dismiss();
                                 finish();
                             }

@@ -10,77 +10,86 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
+
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
-        android:windowSoftInputMode="stateVisible|adjustResize"
+        android:windowSoftInputMode="adjustResize"
         tools:targetApi="q">
         <activity
             android:name=".Activities.EditRecipeActivity"
-            android:screenOrientation="portrait" />
+            android:windowSoftInputMode="stateHidden"
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".Activities.RejectedRecipeActivity"
-            android:screenOrientation="portrait" />
+            android:windowSoftInputMode="stateHidden"
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".Activities.RejectedListActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".Activities.LoginActivity"
-            android:screenOrientation="portrait" />
+            android:windowSoftInputMode="stateHidden"
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".Activities.Inbox.Inbox_new"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".Activities.Add_Recipe.addRecipe_New"
-            android:screenOrientation="portrait" />
+            android:windowSoftInputMode="stateHidden"
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".Activities.AdminActivity"
-            android:screenOrientation="portrait"
+            android:screenOrientation="fullSensor"
             android:theme="@style/adminTheme" />
         <activity
             android:name=".Activities.ModActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".Activities.connectionActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".Activities.ProfileActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".Activities.FavoriteRecipes"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".Activities.SendMessage"
-            android:screenOrientation="portrait" />
+            android:windowSoftInputMode="stateHidden"
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".Activities.MessageActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".Activities.About"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".Activities.MainActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".Activities.SignUpActivity"
-            android:screenOrientation="portrait" />
+            android:windowSoftInputMode="stateHidden"
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".Activities.SearchRecipe"
-            android:screenOrientation="portrait" />
+            android:windowSoftInputMode="stateHidden"
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".Activities.MyRecipes"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".Activities.RecipeActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".Activities.ActivitySplash"
-            android:screenOrientation="portrait">
+            android:screenOrientation="fullSensor">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
